@@ -53,40 +53,51 @@ export default function ScreenplayEditor() {
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-900 p-8">
-      {/* Toolbar */}
-      <div className="fixed top-4 bg-gray-800 text-white p-2 rounded shadow-lg flex gap-4 z-50">
-        <button onClick={() => saveToDisk(value)} className="hover:text-green-400">Save Project</button>
-        <label className="cursor-pointer hover:text-blue-400">
-          Load Project
-          <input type="file" className="hidden" accept=".screenplay" onChange={async (e) => {
-            if (e.target.files?.[0]) setValue(await loadFromDisk(e.target.files[0]));
-          }}/>
-        </label>
-        <div className="w-px bg-gray-600"></div>
-        <button onClick={() => exportToPdf(value)} className="hover:text-red-400 font-bold">Export PDF</button>
-      </div>
-      {/* Save Button */}
-        <button onClick={() => saveToDisk(value)}>Save Project</button>
+      
+      {/* --- UNIFIED TOOLBAR --- */}
+      <div className="fixed top-4 bg-gray-800 text-white p-2 rounded shadow-lg flex gap-4 z-50 items-center border border-gray-700">
         
-        {/* Load Button (Triggering the hidden input) */}
+        {/* 1. SAVE BUTTON */}
+        <button 
+          onClick={() => saveToDisk(value)} 
+          className="hover:text-green-400 font-medium transition-colors"
+        >
+          Save Project
+        </button>
+
+        <div className="w-px h-6 bg-gray-600"></div>
+
+        {/* 2. LOAD BUTTON (Connected to the hidden input) */}
         <button 
           onClick={() => fileInputRef.current?.click()} 
-          className="hover:text-blue-400"
+          className="hover:text-blue-400 font-medium transition-colors"
         >
           Load Project
         </button>
-        
-        {/* Hidden Input */}
-        <input 
-          type="file" 
-          ref={fileInputRef}
-          className="hidden" 
-          accept=".screenplay,.json" 
-          onChange={handleLoadProject}
-        />
 
-      {/* The Paper */}
-      <div className="screenplay-page font-courier text-[12pt] leading-tight">
+        <div className="w-px h-6 bg-gray-600"></div>
+
+        {/* 3. EXPORT BUTTON */}
+        <button 
+          onClick={() => exportToPdf(value)} 
+          className="hover:text-red-400 font-bold transition-colors"
+        >
+          Export PDF
+        </button>
+      </div>
+
+      {/* --- HIDDEN INPUT (The Engine Room) --- */}
+      {/* This must stay in the DOM to make the Load button work, but it remains invisible */}
+      <input 
+        type="file" 
+        ref={fileInputRef}
+        className="hidden" 
+        accept=".screenplay,.json" 
+        onChange={handleLoadProject}
+      />
+
+      {/* --- THE PAPER (Editor) --- */}
+      <div className="screenplay-page mt-16 font-courier text-[12pt] leading-tight text-black selection:bg-yellow-200 shadow-2xl">
         <Slate 
           key={editorKey} 
           editor={editor} 
@@ -98,15 +109,11 @@ export default function ScreenplayEditor() {
             onKeyDown={(e) => handleTabKey(editor, e)}
             spellCheck={false}
             className="outline-none min-h-[10in]"
+            placeholder="INT. SCENE HEADING - DAY"
           />
         </Slate>
       </div>
-      <button 
-  onClick={() => exportToPdf(value)} // 'value' is your Slate state
-  className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded font-bold"
->
-  Export PDF
-</button>
+
     </div>
   );
 }

@@ -1,25 +1,11 @@
 @import "tailwindcss";
 
-@theme {
-  --font-courier: "Courier Prime", "Courier", monospace;
-
-  /* --- MARGINS (Relative to the 1.5in Page Padding) --- */
-  --spacing-dialogue-indent: 1.0in; 
-  --spacing-character-indent: 2.2in; 
-  --spacing-parenthetical-indent: 1.6in; 
-  
-  /* --- WIDTH CONSTRAINTS (Crucial Fix Below) --- */
-  /* We use --max-width-* so Tailwind creates 'max-w-dialogue' */
-  --max-width-dialogue: 33ch;      
-  --max-width-parenthetical: 20ch; 
-}
-
-/* Default Dark Mode / Light Mode setup */
 :root {
   --background: #ffffff;
   --foreground: #171717;
 }
 
+/* Dark mode overrides */
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
@@ -31,16 +17,29 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  
+  /* Prevent horizontal scroll on mobile */
+  overflow-x: hidden; 
 }
 
 /* --- THE PAPER CONTAINER --- */
 .screenplay-page {
-  box-shadow: 0 0 15px rgba(0,0,0,0.1);
+  /* Dimensions */
   width: 8.5in;
   min-height: 11in;
-  padding: 1in 1.5in; /* 1.5 inch Left/Right Padding is the "Anchor" */
-  background: white;
   
-  /* Force text color to black regardless of dark mode */
-  color: black; 
+  /* Padding: This is the "Anchor" 
+     All inline styles in Editor.tsx are relative to this 1.5in padding.
+  */
+  padding: 1in 1.5in; 
+  
+  /* Visuals */
+  background: white;
+  box-shadow: 0 0 20px rgba(0,0,0,0.1); /* Nice 3D shadow */
+  
+  /* Text Defaults */
+  color: black; /* Always black text, even in dark mode */
+  font-family: "Courier Prime", "Courier", monospace;
+  font-size: 12pt;
+  line-height: 1; /* Single spacing is standard for scripts */
 }

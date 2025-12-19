@@ -20,26 +20,23 @@ import { saveToDisk, loadFromDisk } from "@/utils/fileSystem";
 import { exportToPdf } from "@/utils/pdfExporter";
 import { ScreenplayType } from "@/types/screenplay";
 import { useCloudStorage } from "@/hooks/useCloudStorage";
-const initialValue: Descendant[] = [
-  { type: "scene-heading", children: [{ text: "" }] },
-];
 
 interface EditorProps {
   projectId: string;
 }
 
-export default function ScreenplayEditor({ projectId }: { projectId: string }) {
-    const editor = useMemo(
+export default function ScreenplayEditor({ projectId }: EditorProps) {
+  const editor = useMemo(
     () => withScreenplayLogic(withHistory(withReact(createEditor()))),
     []
   );
   // 1. Hook into the Cloud
-  const { content, loading, saveToCloud, saveStatus } =
+  const { content, title, updateTitle, loading, saveToCloud, saveStatus } =
     useCloudStorage(projectId);
 
   // 2. Local State (Slate needs its own state to be fast)
   const [value, setValue] = useState<Descendant[]>([]);
-  const [editorKey, setEditorKey] = useState(0);
+  const [setEditorKey] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
   useEffect(() => {
     if (content && value.length === 0) {
@@ -154,7 +151,6 @@ export default function ScreenplayEditor({ projectId }: { projectId: string }) {
       }
 
       setValue(newContent);
-      setEditorKey((prev) => prev + 1);
 
       // Clear history so "Undo" doesn't revert to the old file
       editor.history.undos = [];
@@ -174,8 +170,12 @@ export default function ScreenplayEditor({ projectId }: { projectId: string }) {
     [editor]
   );
   if (loading || value.length === 0) {
-  return <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">Loading Script...</div>;
-}
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">
+        Loading Script...
+      </div>
+    );
+  }
 
   // Make sure you have these imports at the top:
   // import { Transforms } from 'slate';
@@ -184,11 +184,25 @@ export default function ScreenplayEditor({ projectId }: { projectId: string }) {
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-900 p-8">
+      {/* Title Input */}
+      <div className="mb-6 border-b border-gray-800 pb-4">
+        <input
+          type="text"
+          value={title}
+          onChange={(e) => updateTitle(e.target.value)}
+          className="w-full bg-transparent text-3xl font-bold text-white placeholder-gray-600 outline-none"
+          placeholder="Untitled Screenplay"
+        />
+      </div>
       {/* --- MAIN TOOLBAR --- */}
       <div className="fixed top-4 flex flex-col gap-2 z-50">
         {/* Show Cloud Status */}
         <span className="text-xs text-gray-400 mr-4">
-          {saveStatus === 'saving' ? '☁️ Saving...' : saveStatus === 'saved' ? '✅ Saved' : ''}
+          {saveStatus === "saving"
+            ? "☁️ Saving..."
+            : saveStatus === "saved"
+            ? "✅ Saved"
+            : ""}
         </span>
         {/* Row 1: File Actions (Save/Load/Export) */}
         <div className="bg-gray-800 text-white p-2 rounded shadow-lg flex justify-center gap-4 items-center border border-gray-700">
@@ -252,11 +266,11 @@ export default function ScreenplayEditor({ projectId }: { projectId: string }) {
 
       {/* The Paper */}
       <div className="screenplay-page mt-28 font-courier text-[12pt] leading-tight text-black selection:bg-yellow-200 shadow-2xl">
-        <Slate 
-        editor={editor} 
-        initialValue={value} 
-        onChange={handleEditorChange} // <--- Updated Handler
-     >
+        <Slate
+          editor={editor}
+          initialValue={value}
+          onChange={handleEditorChange} // <--- Updated Handler
+        >
           <Editable
             renderElement={renderElement}
             onKeyDown={(e) => handleTabKey(editor, e)}

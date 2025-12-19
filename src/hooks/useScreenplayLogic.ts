@@ -22,10 +22,10 @@ export const withScreenplayLogic = (editor: Editor) => {
 
       // The State Machine Rules
       switch (type) {
-        case 'scene-heading': nextType = 'character'; break;
+        case 'scene-heading': nextType = 'action'; break;
         case 'character':     nextType = 'dialogue'; break;
         case 'parenthetical': nextType = 'dialogue'; break;
-        case 'dialogue':      nextType = 'character'; break; // Fast dialogue switching
+        case 'dialogue':      nextType = 'action'; break; // Fast dialogue switching
         case 'transition':    nextType = 'scene-heading'; break;
         default:              nextType = 'action';
       }
@@ -62,10 +62,10 @@ export const handleTabKey = (editor: Editor, event: React.KeyboardEvent) => {
   let newType: ScreenplayType = type;
 
   // Logic: Tab cycles through types based on context
-  if (type === 'scene-heading') newType = 'character';
-  else if (type === 'character') newType = 'transition';
-  else if (type === 'transition') newType = 'action';
-  else if (type === 'dialogue') newType = 'parenthetical';
+  if (type === 'scene-heading') newType = 'action';
+  else if (type === 'character') newType = 'dialogue';
+  else if (type === 'transition') newType = 'scene-heading';
+  else if (type === 'dialogue') newType = 'action';
   else if (type === 'parenthetical') newType = 'dialogue';
 
   if (newType !== type) {

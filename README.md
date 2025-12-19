@@ -2,4 +2,4 @@
 
 Work in progress!!
 
-Free, open source, production level screenwriting software
+Free, open source, production-level screenwriting software

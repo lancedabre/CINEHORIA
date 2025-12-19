@@ -6,13 +6,14 @@ import React, {
   useRef,
   useEffect,
 } from "react";
-import { createEditor, Descendant, Transforms } from "slate";
+import { createEditor, Descendant, Transforms, Editor } from "slate";
 import {
   Slate,
   Editable,
   withReact,
   RenderElementProps,
   ReactEditor,
+  RenderLeafProps,
 } from "slate-react";
 import { withHistory } from "slate-history";
 import { withScreenplayLogic, handleTabKey } from "@/hooks/useScreenplayLogic";
@@ -20,9 +21,18 @@ import { saveToDisk, loadFromDisk } from "@/utils/fileSystem";
 import { exportToPdf } from "@/utils/pdfExporter";
 import { ScreenplayType } from "@/types/screenplay";
 import { useCloudStorage } from "@/hooks/useCloudStorage";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 // Note: If you don't have lucide-react installed, remove the Icon components inside the menu or install it.
-import { Save, FileText, FolderOpen, Download, FileJson } from 'lucide-react'; 
+import {
+  Save,
+  FileText,
+  FolderOpen,
+  Download,
+  FileJson,
+  Bold,
+  Italic, 
+  Underline
+} from "lucide-react";
 
 interface EditorProps {
   projectId: string;
@@ -30,7 +40,49 @@ interface EditorProps {
 
 export default function ScreenplayEditor({ projectId }: EditorProps) {
   const router = useRouter();
-  
+
+  const isBoldMarkActive = (editor: Editor) => {
+    const marks = Editor.marks(editor);
+    return marks ? marks.bold === true : false;
+  };
+
+  // Toggle bold on/off
+  // 1. Generic Check: Is this style active?
+  const isMarkActive = (editor: Editor, format: string) => {
+    const marks = Editor.marks(editor);
+    // @ts-ignore (Safety check for TypeScript being strict about keys)
+    return marks ? marks[format] === true : false;
+  };
+
+  // 2. Generic Toggle: Turn it on/off
+  const toggleMark = (editor: Editor, format: string) => {
+    const isActive = isMarkActive(editor, format);
+    if (isActive) {
+      Editor.removeMark(editor, format);
+    } else {
+      Editor.addMark(editor, format, true);
+    }
+  };
+  const renderLeaf = useCallback((props: RenderLeafProps) => {
+    let { children, attributes, leaf } = props;
+
+    // Apply Bold
+    if (leaf.bold) {
+      children = <strong>{children}</strong>;
+    }
+
+    // Apply Italic
+    if (leaf.italic) {
+      children = <em>{children}</em>;
+    }
+
+    // Apply Underline
+    if (leaf.underline) {
+      children = <u>{children}</u>;
+    }
+
+    return <span {...attributes}>{children}</span>;
+  }, []);
   // State for the popup menu
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -45,7 +97,7 @@ export default function ScreenplayEditor({ projectId }: EditorProps) {
 
   // 2. Local State
   const [value, setValue] = useState<Descendant[]>([]);
-  
+
   // (We removed setEditorKey as discussed)
 
   useEffect(() => {
@@ -160,7 +212,6 @@ export default function ScreenplayEditor({ projectId }: EditorProps) {
 
   return (
     <div className="flex flex-col items-center min-h-screen bg-gray-900 p-8">
-      
       {/* Title Input */}
       <div className="mb-6 border-b border-gray-800 pb-4 w-full max-w-4xl">
         <input
@@ -174,7 +225,6 @@ export default function ScreenplayEditor({ projectId }: EditorProps) {
 
       {/* --- MAIN TOOLBAR --- */}
       <div className="fixed top-4 flex flex-col gap-2 z-50 items-center">
-        
         {/* Cloud Status Indicator */}
         <span className="text-xs text-gray-400 mb-1">
           {saveStatus === "saving"
@@ -186,7 +236,6 @@ export default function ScreenplayEditor({ projectId }: EditorProps) {
 
         {/* --- NEW FILE MENU & FORMAT BUTTONS CONTAINER --- */}
         <div className="bg-gray-800 p-1 rounded shadow-lg flex gap-2 items-center border border-gray-700">
-          
           {/* 1. THE FILE MENU BUTTON */}
           <div className="relative">
             <button
@@ -199,12 +248,11 @@ export default function ScreenplayEditor({ projectId }: EditorProps) {
             {/* THE POPUP MENU */}
             {isMenuOpen && (
               <>
-                <div 
-                  className="fixed inset-0 z-10" 
-                  onClick={() => setIsMenuOpen(false)} 
+                <div
+                  className="fixed inset-0 z-10"
+                  onClick={() => setIsMenuOpen(false)}
                 />
                 <div className="absolute left-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-20 overflow-hidden text-sm">
-                  
                   {/* Save to Cloud (Manual Trigger) */}
                   <button
                     onClick={() => {
@@ -218,7 +266,7 @@ export default function ScreenplayEditor({ projectId }: EditorProps) {
 
                   {/* Load / Open (Go to Dashboard) */}
                   <button
-                    onClick={() => router.push('/')}
+                    onClick={() => router.push("/")}
                     className="w-full text-left px-4 py-3 text-gray-200 hover:bg-gray-700 hover:text-white flex items-center gap-2"
                   >
                     <FolderOpen size={14} /> <span>Open Project...</span>
@@ -250,7 +298,6 @@ export default function ScreenplayEditor({ projectId }: EditorProps) {
                   >
                     <FileJson size={14} /> <span>Download JSON</span>
                   </button>
-
                 </div>
               </>
             )}
@@ -260,13 +307,58 @@ export default function ScreenplayEditor({ projectId }: EditorProps) {
           <div className="w-px h-4 bg-gray-600 mx-1"></div>
 
           {/* 2. FORMATTING BUTTONS (Row 2 moved here to be side-by-side or keep below if preferred) */}
-          <FormatButton label="Heading" format="scene-heading" onToggle={toggleBlock} />
+          <FormatButton
+            label="Heading"
+            format="scene-heading"
+            onToggle={toggleBlock}
+          />
           <FormatButton label="Action" format="action" onToggle={toggleBlock} />
-          <FormatButton label="Char" format="character" onToggle={toggleBlock} />
+          <FormatButton
+            label="Char"
+            format="character"
+            onToggle={toggleBlock}
+          />
           <FormatButton label="Dial" format="dialogue" onToggle={toggleBlock} />
-          <FormatButton label="Paren" format="parenthetical" onToggle={toggleBlock} />
-          <FormatButton label="Trans" format="transition" onToggle={toggleBlock} />
-          
+          <FormatButton
+            label="Paren"
+            format="parenthetical"
+            onToggle={toggleBlock}
+          />
+          <FormatButton
+            label="Trans"
+            format="transition"
+            onToggle={toggleBlock}
+          />
+          {/* Vertical Separator */}
+          <div className="w-px h-4 bg-gray-600 mx-1"></div>
+          {/* --- FORMATTING ICONS --- */}
+<div className="flex gap-1 mr-2 bg-gray-900/50 p-1 rounded">
+  
+  {/* BOLD */}
+  <FormatIconButton 
+    icon={<Bold size={12} />} 
+    isActive={isMarkActive(editor, 'bold')} 
+    onToggle={() => toggleMark(editor, 'bold')} 
+  />
+
+  {/* ITALIC */}
+  <FormatIconButton 
+    icon={<Italic size={12} />} 
+    isActive={isMarkActive(editor, 'italic')} 
+    onToggle={() => toggleMark(editor, 'italic')} 
+  />
+
+  {/* UNDERLINE */}
+  <FormatIconButton 
+    icon={<Underline size={12} />} 
+    isActive={isMarkActive(editor, 'underline')} 
+    onToggle={() => toggleMark(editor, 'underline')} 
+  />
+  
+</div>
+
+{/* Separator */}
+<div className="w-px h-4 bg-gray-600 mx-1"></div>
         </div>
       </div>
 
@@ -279,10 +371,27 @@ export default function ScreenplayEditor({ projectId }: EditorProps) {
         >
           <Editable
             renderElement={renderElement}
-            onKeyDown={(e) => handleTabKey(editor, e)}
-            spellCheck={false}
-            className="outline-none min-h-[10in]"
-            placeholder="INT. SCENE HEADING - DAY"
+  renderLeaf={renderLeaf}
+  onKeyDown={(e) => {
+    // CTRL + B (Bold)
+    if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
+      e.preventDefault();
+      toggleMark(editor, 'bold');
+    }
+    // CTRL + I (Italic)
+    if ((e.ctrlKey || e.metaKey) && e.key === 'i') {
+      e.preventDefault();
+      toggleMark(editor, 'italic');
+    }
+    // CTRL + U (Underline)
+    if ((e.ctrlKey || e.metaKey) && e.key === 'u') {
+      e.preventDefault();
+      toggleMark(editor, 'underline');
+    }
+    
+    handleTabKey(editor, e);
+  }}
+            
           />
         </Slate>
       </div>
@@ -293,7 +402,33 @@ export default function ScreenplayEditor({ projectId }: EditorProps) {
 // -------------------------------------------------------------------------
 // Helper Component: FormatButton
 // -------------------------------------------------------------------------
+// -------------------------------------------------------------------------
+// Helper Component: FormatIconButton (For Bold, Italic, Underline)
+// -------------------------------------------------------------------------
 
+interface IconBtnProps {
+  icon: React.ReactNode;
+  isActive: boolean;
+  onToggle: () => void;
+}
+
+const FormatIconButton = ({ icon, isActive, onToggle }: IconBtnProps) => (
+  <button
+    onMouseDown={(e) => {
+      e.preventDefault(); // Prevents losing focus from the editor
+      onToggle();
+    }}
+    className={`
+      p-1 rounded transition-colors
+      ${isActive 
+        ? "bg-white text-black shadow-sm" 
+        : "text-gray-400 hover:text-white hover:bg-gray-700"
+      }
+    `}
+  >
+    {icon}
+  </button>
+);
 interface FormatButtonProps {
   label: string;
   format: ScreenplayType;

@@ -15,8 +15,12 @@ export type ScreenplayElement = {
   children: CustomText[];
 };
 
-export type CustomText = { text: string };
-
+export type CustomText = {
+  text: string;
+  bold?: boolean; 
+  italic?: boolean;     
+  underline?: boolean;
+};
 declare module 'slate' {
   interface CustomTypes {
     Editor: BaseEditor & ReactEditor & HistoryEditor;

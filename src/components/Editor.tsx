@@ -22,17 +22,17 @@ import { exportToPdf } from "@/utils/pdfExporter";
 import { ScreenplayType } from "@/types/screenplay";
 import { useCloudStorage } from "@/hooks/useCloudStorage";
 import { useRouter } from "next/navigation";
-// Note: If you don't have lucide-react installed, remove the Icon components inside the menu or install it.
 import {
   Save,
   FileText,
   FolderOpen,
-  Download,
   FileJson,
   Bold,
   Italic, 
-  Underline
+  Underline,
+  Clapperboard // Added for branding
 } from "lucide-react";
+
 
 interface EditorProps {
   projectId: string;
@@ -41,20 +41,18 @@ interface EditorProps {
 export default function ScreenplayEditor({ projectId }: EditorProps) {
   const router = useRouter();
 
+  // --- HELPERS (Copied exactly from your code) ---
   const isBoldMarkActive = (editor: Editor) => {
     const marks = Editor.marks(editor);
     return marks ? marks.bold === true : false;
   };
 
-  // Toggle bold on/off
-  // 1. Generic Check: Is this style active?
   const isMarkActive = (editor: Editor, format: string) => {
     const marks = Editor.marks(editor);
-    // @ts-ignore (Safety check for TypeScript being strict about keys)
+    // @ts-ignore 
     return marks ? marks[format] === true : false;
   };
 
-  // 2. Generic Toggle: Turn it on/off
   const toggleMark = (editor: Editor, format: string) => {
     const isActive = isMarkActive(editor, format);
     if (isActive) {
@@ -63,42 +61,44 @@ export default function ScreenplayEditor({ projectId }: EditorProps) {
       Editor.addMark(editor, format, true);
     }
   };
+
   const renderLeaf = useCallback((props: RenderLeafProps) => {
     let { children, attributes, leaf } = props;
-
-    // Apply Bold
-    if (leaf.bold) {
-      children = <strong>{children}</strong>;
-    }
-
-    // Apply Italic
-    if (leaf.italic) {
-      children = <em>{children}</em>;
-    }
-
-    // Apply Underline
-    if (leaf.underline) {
-      children = <u>{children}</u>;
-    }
-
+    if (leaf.bold) children = <strong>{children}</strong>;
+    if (leaf.italic) children = <em>{children}</em>;
+    if (leaf.underline) children = <u>{children}</u>;
     return <span {...attributes}>{children}</span>;
   }, []);
-  // State for the popup menu
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
+  // --- STATE ---
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const editor = useMemo(
     () => withScreenplayLogic(withHistory(withReact(createEditor()))),
     []
   );
+  
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // 1. Hook into the Cloud
-  const { content, title, updateTitle, loading, saveToCloud, saveStatus } =
-    useCloudStorage(projectId);
+  const handleLoadLocalFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const json = JSON.parse(text);
+      if (!Array.isArray(json)) throw new Error("Invalid file format");
+      setValue(json);
+      saveToCloud(json);
+      alert("Script loaded successfully!");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to load file. Is it a valid JSON?");
+    } finally {
+      if (e.target) e.target.value = ''; 
+    }
+  };
 
-  // 2. Local State
+  const { content, title, updateTitle, loading, saveToCloud, saveStatus } = useCloudStorage(projectId);
   const [value, setValue] = useState<Descendant[]>([]);
-
-  // (We removed setEditorKey as discussed)
 
   useEffect(() => {
     if (content && value.length === 0) {
@@ -108,87 +108,26 @@ export default function ScreenplayEditor({ projectId }: EditorProps) {
 
   const handleEditorChange = (newValue: Descendant[]) => {
     setValue(newValue);
-    // Auto-save to cloud
     saveToCloud(newValue);
   };
 
-  // The CSS Renderer
   const renderElement = useCallback((props: RenderElementProps) => {
     const { attributes, children, element } = props;
     if (!element) return <p {...attributes}>{children}</p>;
 
     switch (element.type) {
       case "scene-heading":
-        return (
-          <h3
-            {...attributes}
-            className="mt-8 mb-4 text-left w-full"
-            style={{ textTransform: "uppercase" }}
-          >
-            {children}
-          </h3>
-        );
-
+        return <h3 {...attributes} className="mt-8 mb-4 text-left w-full" style={{ textTransform: "uppercase" }}>{children}</h3>;
       case "action":
-        return (
-          <p {...attributes} className="mb-4 text-left">
-            {children}
-          </p>
-        );
-
+        return <p {...attributes} className="mb-4 text-left">{children}</p>;
       case "character":
-        return (
-          <p
-            {...attributes}
-            className="mt-4 mb-0"
-            style={{
-              marginLeft: "2.2in",
-              textTransform: "uppercase",
-            }}
-          >
-            {children}
-          </p>
-        );
-
+        return <p {...attributes} className="mt-4 mb-0" style={{ marginLeft: "2.2in", textTransform: "uppercase" }}>{children}</p>;
       case "dialogue":
-        return (
-          <div
-            {...attributes}
-            className="mb-0"
-            style={{
-              marginLeft: "1.0in",
-              maxWidth: "35ch",
-            }}
-          >
-            {children}
-          </div>
-        );
-
+        return <div {...attributes} className="mb-0" style={{ marginLeft: "1.0in", maxWidth: "35ch" }}>{children}</div>;
       case "parenthetical":
-        return (
-          <p
-            {...attributes}
-            className="mb-0 italic text-sm text-gray-600"
-            style={{
-              marginLeft: "1.6in",
-              maxWidth: "20ch",
-            }}
-          >
-            {children}
-          </p>
-        );
-
+        return <p {...attributes} className="mb-0 italic text-sm text-gray-600" style={{ marginLeft: "1.6in", maxWidth: "20ch" }}>{children}</p>;
       case "transition":
-        return (
-          <p
-            {...attributes}
-            className="text-right mt-4 mb-4"
-            style={{ textTransform: "uppercase" }}
-          >
-            {children}
-          </p>
-        );
-
+        return <p {...attributes} className="text-right mt-4 mb-4" style={{ textTransform: "uppercase" }}>{children}</p>;
       default:
         return <p {...attributes}>{children}</p>;
     }
@@ -203,198 +142,140 @@ export default function ScreenplayEditor({ projectId }: EditorProps) {
   );
 
   if (loading || value.length === 0) {
-    return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">
-        Loading Script...
-      </div>
-    );
+    return <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">Loading Script...</div>;
   }
 
   return (
-    <div className="flex flex-col items-center min-h-screen bg-gray-900 p-8">
-      {/* Title Input */}
-      <div className="mb-6 border-b border-gray-800 pb-4 w-full max-w-4xl">
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => updateTitle(e.target.value)}
-          className="w-full bg-transparent text-3xl font-bold text-white placeholder-gray-600 outline-none text-center"
-          placeholder="Untitled Screenplay"
-        />
-      </div>
+    // 1. CHANGED: Main Container to Flex Row (Horizontal Layout)
+    <div className="flex h-screen w-full bg-black overflow-hidden font-sans">
+      
+      {/* --- LEFT SIDEBAR (The Taskbar) --- */}
+      <aside className="w-24 bg-black border-r border-gray-900 flex flex-col items-center py-4 gap-4 z-50 shadow-xl overflow-y-auto custom-scrollbar">
+        
+        {/* Cloud Status */}
+        <div title={saveStatus === 'saving' ? 'Saving...' : 'Saved'} className="mb-2">
+            <span className="text-xs">{saveStatus === "saving" ? "☁️" : "saved ✔️"}</span>
+        </div>
 
-      {/* --- MAIN TOOLBAR --- */}
-      <div className="fixed top-4 flex flex-col gap-2 z-50 items-center">
-        {/* Cloud Status Indicator */}
-        <span className="text-xs text-gray-400 mb-1">
-          {saveStatus === "saving"
-            ? "☁️ Saving..."
-            : saveStatus === "saved"
-            ? "✅ Saved"
-            : ""}
-        </span>
-
-        {/* --- NEW FILE MENU & FORMAT BUTTONS CONTAINER --- */}
-        <div className="bg-gray-800 p-1 rounded shadow-lg flex gap-2 items-center border border-gray-700">
-          {/* 1. THE FILE MENU BUTTON */}
-          <div className="relative">
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="px-3 py-1 bg-gray-700 hover:bg-gray-600 text-white text-[10px] font-bold uppercase tracking-wider rounded transition-colors flex items-center gap-2"
+        {/* File Menu (Compact) */}
+        <div className="relative w-full px-2">
+            <button 
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="w-full aspect-square hover:bg-gray-600/60 rounded-2xl flex flex-col items-center justify-center text-white transition-colors gap-1"
             >
-              📁 File
+                <FolderOpen size={20} />
             </button>
 
-            {/* THE POPUP MENU */}
-            {isMenuOpen && (
+             {/* POPUP MENU */}
+             {isMenuOpen && (
               <>
-                <div
-                  className="fixed inset-0 z-10"
-                  onClick={() => setIsMenuOpen(false)}
-                />
-                <div className="absolute left-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-xl z-20 overflow-hidden text-sm">
-                  {/* Save to Cloud (Manual Trigger) */}
-                  <button
-                    onClick={() => {
-                      saveToCloud(value);
-                      setIsMenuOpen(false);
-                    }}
-                    className="w-full text-left px-4 py-3 text-gray-200 hover:bg-gray-700 hover:text-white flex items-center gap-2"
-                  >
+                {/* Invisible Backdrop to close menu when clicking outside */}
+                <div className="fixed inset-0 z-99" onClick={() => setIsMenuOpen(false)}/>
+                
+                {/* FIX: Changed from 'absolute' to 'fixed'. 
+                   'left-28' pushes it right of the w-24 sidebar.
+                   'z-[100]' ensures it floats above everything.
+                */}
+                <div className="fixed left-28 top-20 w-56 bg-black border border-gray-700 rounded-lg shadow-2xl z-100 overflow-hidden text-sm animate-in fade-in zoom-in-95 duration-100">
+                  <button onClick={() => { saveToCloud(value); setIsMenuOpen(false); }} className="w-full text-left px-4 py-3 text-gray-200 hover:bg-gray-700 hover:text-white flex items-center gap-2 transition-colors">
                     <Save size={14} /> <span>Save (Cloud)</span>
                   </button>
-
-                  {/* Load / Open (Go to Dashboard) */}
-                  <button
-                    onClick={() => router.push("/")}
-                    className="w-full text-left px-4 py-3 text-gray-200 hover:bg-gray-700 hover:text-white flex items-center gap-2"
-                  >
+                  <button onClick={() => router.push("/")} className="w-full text-left px-4 py-3 text-gray-200 hover:bg-gray-700 hover:text-white flex items-center gap-2 transition-colors">
                     <FolderOpen size={14} /> <span>Open Project...</span>
                   </button>
-
-                  <div className="border-t border-gray-700 my-1"></div>
-                  <div className="px-4 py-1 text-[10px] text-gray-500 font-bold uppercase tracking-wider">
-                    Export
-                  </div>
-
-                  {/* Export PDF */}
-                  <button
-                    onClick={() => {
-                      exportToPdf(value);
-                      setIsMenuOpen(false);
-                    }}
-                    className="w-full text-left px-4 py-2 text-gray-200 hover:bg-gray-700 hover:text-white flex items-center gap-2"
-                  >
-                    <FileText size={14} /> <span>Download PDF</span>
+                  <button onClick={() => { fileInputRef.current?.click(); setIsMenuOpen(false); }} className="w-full text-left px-4 py-3 text-gray-200 hover:bg-gray-700 hover:text-white flex items-center gap-2 transition-colors">
+                    <div className="relative"><FileJson size={14} /><div className="absolute -top-1 -right-1 text-[8px] bg-blue-500 rounded-full w-2 h-2"></div></div>
+                    <span>Import JSON</span>
                   </button>
-
-                  {/* Export JSON / .screenplay */}
-                  <button
-                    onClick={() => {
-                      saveToDisk(value);
-                      setIsMenuOpen(false);
-                    }}
-                    className="w-full text-left px-4 py-2 text-gray-200 hover:bg-gray-700 hover:text-white flex items-center gap-2"
-                  >
-                    <FileJson size={14} /> <span>Download JSON</span>
+                  <div className="border-t border-gray-700 my-1"></div>
+                  <button onClick={() => { exportToPdf(value); setIsMenuOpen(false); }} className="w-full text-left px-4 py-2 text-gray-200 hover:bg-gray-700 hover:text-white flex items-center gap-2 transition-colors">
+                    <FileText size={14} /> <span>Export PDF</span>
+                  </button>
+                  <button onClick={() => { saveToDisk(value); setIsMenuOpen(false); }} className="w-full text-left px-4 py-2 text-gray-200 hover:bg-gray-700 hover:text-white flex items-center gap-2 transition-colors">
+                    <FileJson size={14} /> <span>Export JSON</span>
                   </button>
                 </div>
               </>
             )}
-          </div>
-
-          {/* Vertical Separator */}
-          <div className="w-px h-4 bg-gray-600 mx-1"></div>
-
-          {/* 2. FORMATTING BUTTONS (Row 2 moved here to be side-by-side or keep below if preferred) */}
-          <FormatButton
-            label="Heading"
-            format="scene-heading"
-            onToggle={toggleBlock}
-          />
-          <FormatButton label="Action" format="action" onToggle={toggleBlock} />
-          <FormatButton
-            label="Char"
-            format="character"
-            onToggle={toggleBlock}
-          />
-          <FormatButton label="Dial" format="dialogue" onToggle={toggleBlock} />
-          <FormatButton
-            label="Paren"
-            format="parenthetical"
-            onToggle={toggleBlock}
-          />
-          <FormatButton
-            label="Trans"
-            format="transition"
-            onToggle={toggleBlock}
-          />
-          {/* Vertical Separator */}
-          <div className="w-px h-4 bg-gray-600 mx-1"></div>
-          {/* --- FORMATTING ICONS --- */}
-<div className="flex gap-1 mr-2 bg-gray-900/50 p-1 rounded">
-  
-  {/* BOLD */}
-  <FormatIconButton 
-    icon={<Bold size={12} />} 
-    isActive={isMarkActive(editor, 'bold')} 
-    onToggle={() => toggleMark(editor, 'bold')} 
-  />
-
-  {/* ITALIC */}
-  <FormatIconButton 
-    icon={<Italic size={12} />} 
-    isActive={isMarkActive(editor, 'italic')} 
-    onToggle={() => toggleMark(editor, 'italic')} 
-  />
-
-  {/* UNDERLINE */}
-  <FormatIconButton 
-    icon={<Underline size={12} />} 
-    isActive={isMarkActive(editor, 'underline')} 
-    onToggle={() => toggleMark(editor, 'underline')} 
-  />
-  
-</div>
-
-{/* Separator */}
-<div className="w-px h-4 bg-gray-600 mx-1"></div>
         </div>
-      </div>
 
-      {/* The Paper */}
-      <div className="screenplay-page mt-28 font-courier text-[12pt] leading-tight text-black selection:bg-yellow-200 shadow-2xl">
-        <Slate
-          editor={editor}
-          initialValue={value}
-          onChange={handleEditorChange}
-        >
-          <Editable
-            renderElement={renderElement}
-  renderLeaf={renderLeaf}
-  onKeyDown={(e) => {
-    // CTRL + B (Bold)
-    if ((e.ctrlKey || e.metaKey) && e.key === 'b') {
-      e.preventDefault();
-      toggleMark(editor, 'bold');
-    }
-    // CTRL + I (Italic)
-    if ((e.ctrlKey || e.metaKey) && e.key === 'i') {
-      e.preventDefault();
-      toggleMark(editor, 'italic');
-    }
-    // CTRL + U (Underline)
-    if ((e.ctrlKey || e.metaKey) && e.key === 'u') {
-      e.preventDefault();
-      toggleMark(editor, 'underline');
-    }
-    
-    handleTabKey(editor, e);
-  }}
-            
+        <div className="w-10 h-px bg-gray-700"></div>
+
+        {/* Format Buttons (Stacked Vertically) */}
+        <div className="flex flex-col w-full px-2 gap-2">
+            <FormatButton label="HEAD" format="scene-heading" onToggle={toggleBlock} />
+            <FormatButton label="ACTION" format="action" onToggle={toggleBlock} />
+            <FormatButton label="CHARACTER" format="character" onToggle={toggleBlock} />
+            <FormatButton label="DIALOGUE" format="dialogue" onToggle={toggleBlock} />
+            <FormatButton label="PARENTHESES" format="parenthetical" onToggle={toggleBlock} />
+            <FormatButton label="TRANSITION" format="transition" onToggle={toggleBlock} />
+        </div>
+
+        <div className="w-10 h-px bg-gray-700"></div>
+
+        {/* Style Icons (Vertical or Grid) */}
+        <div className="flex flex-col gap-2 w-full px-4">
+            <FormatIconButton icon={<Bold size={16} />} isActive={isMarkActive(editor, 'bold')} onToggle={() => toggleMark(editor, 'bold')} />
+            <FormatIconButton icon={<Italic size={16} />} isActive={isMarkActive(editor, 'italic')} onToggle={() => toggleMark(editor, 'italic')} />
+            <FormatIconButton icon={<Underline size={16} />} isActive={isMarkActive(editor, 'underline')} onToggle={() => toggleMark(editor, 'underline')} />
+        </div>
+
+      </aside>
+
+      {/* --- RIGHT CONTENT AREA --- */}
+      <main className="flex-1 flex flex-col h-full relative">
+
+        {/* 2. MOVED: Title Input to Top Right (Absolute Position) */}
+        <div className="absolute top-6 right-10 flex flex-col items-end z-40">
+           {/* Brand Logo */}
+           <div className="flex items-center gap-2 mb-1 opacity-50 hover:opacity-100 transition-opacity select-none">
+              <span className="text-[10px] font-bold tracking-[0.3em] text-[#ff99cc]">CINEHORIA</span>
+              <Clapperboard size={14} className="text-[#ff99cc]"/>
+           </div>
+           <div className="w-50 h-px bg-gray-700 my-2"></div>
+           <input
+            type="text"
+            value={title}
+            onChange={(e) => updateTitle(e.target.value)}
+            className="w-[400px] bg-transparent text-right text-1xl font-bold text-white placeholder-gray-700 outline-none"
+            placeholder="Untitled Screenplay"
           />
-        </Slate>
-      </div>
+        </div>
+
+        {/* 3. CENTERED PAPER: Scrollable Container */}
+        <div className="flex-1 overflow-y-auto flex justify-center p-8">
+            {/* I removed the 'mt-28' from here because the toolbar is no longer fixed at the top.
+               Everything else about the paper is EXACTLY as you had it. 
+            */}
+            <div className="screenplay-page my-10 font-courier text-[12pt] leading-tight text-black selection:bg-yellow-200 shadow-2xl bg-white min-h-[11in]">
+                <Slate editor={editor} initialValue={value} onChange={handleEditorChange}>
+                <Editable
+                    renderElement={renderElement}
+                    renderLeaf={renderLeaf}
+                    className="outline-none focus:outline-none focus:ring-0 min-h-[10in]" // Added padding inside the paper so text doesn't hit edge
+                    placeholder="INT. SCENE HEADING - DAY"
+                    spellCheck={false}
+                    onKeyDown={(e) => {
+                        if ((e.ctrlKey || e.metaKey) && e.key === 'b') { e.preventDefault(); toggleMark(editor, 'bold'); }
+                        if ((e.ctrlKey || e.metaKey) && e.key === 'i') { e.preventDefault(); toggleMark(editor, 'italic'); }
+                        if ((e.ctrlKey || e.metaKey) && e.key === 'u') { e.preventDefault(); toggleMark(editor, 'underline'); }
+                        handleTabKey(editor, e);
+                    }}
+                />
+                </Slate>
+            </div>
+        </div>
+
+      </main>
+
+      {/* Hidden Input for loading files */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        className="hidden"
+        accept=".json,.screenplay"
+        onChange={handleLoadLocalFile}
+      />
     </div>
   );
 }
@@ -402,33 +283,6 @@ export default function ScreenplayEditor({ projectId }: EditorProps) {
 // -------------------------------------------------------------------------
 // Helper Component: FormatButton
 // -------------------------------------------------------------------------
-// -------------------------------------------------------------------------
-// Helper Component: FormatIconButton (For Bold, Italic, Underline)
-// -------------------------------------------------------------------------
-
-interface IconBtnProps {
-  icon: React.ReactNode;
-  isActive: boolean;
-  onToggle: () => void;
-}
-
-const FormatIconButton = ({ icon, isActive, onToggle }: IconBtnProps) => (
-  <button
-    onMouseDown={(e) => {
-      e.preventDefault(); // Prevents losing focus from the editor
-      onToggle();
-    }}
-    className={`
-      p-1 rounded transition-colors
-      ${isActive 
-        ? "bg-white text-black shadow-sm" 
-        : "text-gray-400 hover:text-white hover:bg-gray-700"
-      }
-    `}
-  >
-    {icon}
-  </button>
-);
 interface FormatButtonProps {
   label: string;
   format: ScreenplayType;
@@ -443,14 +297,41 @@ const FormatButton = ({ label, format, onToggle }: FormatButtonProps) => {
         onToggle(format);
       }}
       className="
-        px-3 py-1 
-        text-[10px] font-bold uppercase tracking-wider 
-        bg-gray-700 text-gray-300 
+        w-full py-2 
+        text-[9px] font-bold uppercase tracking-wider 
+        text-gray-400 
         hover:bg-gray-600 hover:text-white 
-        rounded transition-colors
+        rounded-2xl transition-colors
       "
     >
       {label}
     </button>
   );
 };
+
+// -------------------------------------------------------------------------
+// Helper Component: FormatIconButton
+// -------------------------------------------------------------------------
+interface IconBtnProps {
+  icon: React.ReactNode;
+  isActive: boolean;
+  onToggle: () => void;
+}
+
+const FormatIconButton = ({ icon, isActive, onToggle }: IconBtnProps) => (
+  <button
+    onMouseDown={(e) => {
+      e.preventDefault(); 
+      onToggle();
+    }}
+    className={`
+      p-2 w-full flex justify-center rounded transition-colors
+      ${isActive 
+        ? "bg-white text-black shadow-sm" 
+        : "text-gray-400 hover:text-white hover:bg-gray-700"
+      }
+    `}
+  >
+    {icon}
+  </button>
+);

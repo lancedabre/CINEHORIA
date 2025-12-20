@@ -100,21 +100,38 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 p-8 text-white">
-      <div className="max-w-4xl mx-auto">
-        
+
+
+<div className="flex h-screen w-full bg-[linear-gradient(rgba(0,0,0,0.6),rgba(0,0,0,0.6)),url('/menu-bg.jpg')] bg-cover bg-center bg-fixed text-white font-sans overflow-hidden">
+<div className="w-16 h-full flex flex-col items-center justify-center select-none z-20 shrink-0">
+  <div className="flex flex-col gap-3 items-center text-sm font-bold tracking-widest text-white drop-shadow-[0_0_5px_rgba(235,96,195,0.5)]">         
+          <span>C</span>
+          <span>I</span>
+          <span>N</span>
+          <span>E</span>
+          <span>H</span>
+          <span>O</span>
+          <span>R</span>
+          <span>I</span>
+          <span>A</span>
+        </div>
+      </div>
+        <div className="flex-1 overflow-y-auto p-8">
+          <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-8 border-b border-gray-800 pb-6">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-100">My Screenplays</h1>
-            <p className="text-gray-400 mt-1 text-sm">Manage your scripts</p>
-          </div>
+          <div className="
+    h-12 w-48                  /* Height and Width of your logo */
+    bg-[url('/menu-bg.jpg')]      /* The image path */
+    bg-contain bg-no-repeat bg-left /* proper scaling */
+    mb-2
+"></div>
           
           <div className="flex gap-3">
             {/* IMPORT BUTTON */}
             <button 
               onClick={() => fileInputRef.current?.click()}
-              className="flex items-center gap-2 px-4 py-2 bg-gray-800 hover:bg-gray-700 text-gray-200 rounded-lg transition-all border border-gray-700"
+              className="flex items-center gap-2 px-4 py-2  hover:bg-[#eb60c3]/20 text-gray-200 rounded-2xl transition-all "
             >
               <Upload size={18} />
               <span>Import</span>
@@ -123,7 +140,7 @@ export default function Dashboard() {
             {/* NEW PROJECT BUTTON */}
             <button 
               onClick={createProject}
-              className="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg font-bold transition-colors shadow-lg flex items-center gap-2"
+              className=" hover:bg-[#eb60c3]/20 text-gray-200 px-4 py-2 rounded-2xl font-bold transition-colors shadow-lg flex items-center gap-2"
             >
               <Plus size={18} />
               <span>New Project</span>
@@ -151,11 +168,21 @@ export default function Dashboard() {
                 href={`/project/${project.id}`}
                 className="block group relative"
               >
-                <div className="bg-gray-800 border border-gray-700 p-6 rounded-lg hover:border-blue-500 hover:shadow-blue-900/20 transition-all h-full flex flex-col justify-between">
-                  
+<div className="
+  bg-black/30 backdrop-blur-md 
+  border border-white/10 
+  p-6 rounded-2xl 
+  
+ 
+  hover:border-[#eb60c3]-500/80 
+  hover:shadow-[0_0_30px_-5px_rgba(235,96,195,0.6)]
+  
+  transition-all duration-300    
+  h-full flex flex-col justify-between group
+">                 
                   {/* Top Row: Icon + Delete */}
                   <div className="flex justify-between items-start mb-4">
-                     <div className="p-2 bg-gray-700/50 rounded text-blue-400">
+                     <div className="p-2 bg-gray-700/50 rounded text-gray-400">
                         <FileText size={20} />
                      </div>
                      <button
@@ -171,7 +198,7 @@ export default function Dashboard() {
                   <div>
                     {/* FONT FIX: We apply the font variable here to stop the warning */}
                     <h3 
-                      className="text-xl font-semibold text-gray-200 group-hover:text-white truncate mb-2"
+                      className="text-xl font-semibold text-white group-hover:text-white truncate mb-2"
                       style={{ fontFamily: 'var(--font-courier), monospace' }} 
                     >
                       {project.title}
@@ -193,6 +220,7 @@ export default function Dashboard() {
           </div>
         )}
       </div>
+    </div>
     </div>
   );
 }

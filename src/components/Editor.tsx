@@ -30,17 +30,17 @@ import {
   Bold,
   Italic, 
   Underline,
-  Clapperboard // Added for branding
+  Clapperboard
 } from "lucide-react";
+import { supabase } from '@/lib/supabase';
 
 
 interface EditorProps {
   projectId: string;
+  setLoading: (loading: boolean) => void;
 }
 
-export default function ScreenplayEditor({ projectId }: EditorProps) {
-  const router = useRouter();
-
+export default function ScreenplayEditor({ projectId, setLoading }: EditorProps) {  const router = useRouter();
   // --- HELPERS (Copied exactly from your code) ---
   const isBoldMarkActive = (editor: Editor) => {
     const marks = Editor.marks(editor);
@@ -98,13 +98,40 @@ export default function ScreenplayEditor({ projectId }: EditorProps) {
   };
 
   const { content, title, updateTitle, loading, saveToCloud, saveStatus } = useCloudStorage(projectId);
-  const [value, setValue] = useState<Descendant[]>([]);
+  const INITIAL_EMPTY_STATE = [
+  {
+    type: 'paragraph',
+    children: [{ text: '' }],
+  } as any
+];
+
+const [value, setValue] = useState<Descendant[]>(INITIAL_EMPTY_STATE);
 
   useEffect(() => {
-    if (content && value.length === 0) {
-      setValue(content);
+  if (!projectId) return;
+  const fetchProject = async () => {
+    setLoading(true);
+    const { data, error } = await supabase
+      .from('projects')
+      .select('content')
+      .eq('id', projectId)
+      .single();
+
+    if (data) {
+      // 🛡️ SECURITY CHECK:
+      // If DB returns empty array (new project) or null, FORCE the default state.
+      // Otherwise Slate will crash.
+      if (!data.content || (Array.isArray(data.content) && data.content.length === 0)) {
+        setValue(INITIAL_EMPTY_STATE);
+      } else {
+        setValue(data.content);
+      }
     }
-  }, [content]);
+    setLoading(false);
+  };
+
+  fetchProject();
+}, [projectId]);
 
   const handleEditorChange = (newValue: Descendant[]) => {
     setValue(newValue);
@@ -125,7 +152,23 @@ export default function ScreenplayEditor({ projectId }: EditorProps) {
       case "dialogue":
         return <div {...attributes} className="mb-0" style={{ marginLeft: "1.0in", maxWidth: "35ch" }}>{children}</div>;
       case "parenthetical":
-        return <p {...attributes} className="mb-0 italic text-sm text-gray-600" style={{ marginLeft: "1.6in", maxWidth: "20ch" }}>{children}</p>;
+      return (
+        <p 
+          {...attributes} 
+          // 1. Removed 'italic' and 'text-gray-600' (Screenplays should be standard black)
+          className="mb-0 text-sm text-black" 
+          style={{ marginLeft: "2.0in", maxWidth: "15ch" }} // Tweaked margins slightly to look more standard
+        >
+          {/* 2. The Opening Bracket (Un-deletable) */}
+          <span contentEditable={false} className="select-none mr-1px">(</span>
+          
+          {/* 3. The Actual Text */}
+          {children}
+          
+          {/* 4. The Closing Bracket (Un-deletable) */}
+          <span contentEditable={false} className="select-none ml-1px">)</span>
+        </p>
+      );
       case "transition":
         return <p {...attributes} className="text-right mt-4 mb-4" style={{ textTransform: "uppercase" }}>{children}</p>;
       default:
@@ -142,7 +185,7 @@ export default function ScreenplayEditor({ projectId }: EditorProps) {
   );
 
   if (loading || value.length === 0) {
-    return <div className="min-h-screen bg-gray-900 flex items-center justify-center text-white">Loading Script...</div>;
+    return <div className="min-h-screen bg-black flex items-center justify-center text-white">Loading Script...</div>;
   }
 
   return (
@@ -243,11 +286,11 @@ export default function ScreenplayEditor({ projectId }: EditorProps) {
         </div>
 
         {/* 3. CENTERED PAPER: Scrollable Container */}
-        <div className="flex-1 overflow-y-auto flex justify-center p-8">
+        <div className="flex-1 h-full w-full overflow-y-auto p-8 pb-96 scroll-smooth relative">
             {/* I removed the 'mt-28' from here because the toolbar is no longer fixed at the top.
                Everything else about the paper is EXACTLY as you had it. 
             */}
-            <div className="screenplay-page my-10 font-courier text-[12pt] leading-tight text-black selection:bg-yellow-200 shadow-2xl bg-white min-h-[11in]">
+            <div className="screenplay-page mx-auto my-10 font-courier text-[12pt] leading-tight text-black selection:bg-yellow-200 shadow-2xl bg-white min-h-[11in] w-[8.5in]">
                 <Slate editor={editor} initialValue={value} onChange={handleEditorChange}>
                 <Editable
                     renderElement={renderElement}

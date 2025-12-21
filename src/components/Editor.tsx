@@ -41,6 +41,7 @@ interface EditorProps {
 }
 
 export default function ScreenplayEditor({ projectId, setLoading }: EditorProps) {  const router = useRouter();
+  const [projectTitle, setProjectTitle] = useState("Untitled");
   // --- HELPERS (Copied exactly from your code) ---
   const isBoldMarkActive = (editor: Editor) => {
     const marks = Editor.marks(editor);
@@ -113,7 +114,7 @@ const [value, setValue] = useState<Descendant[]>(INITIAL_EMPTY_STATE);
     setLoading(true);
     const { data, error } = await supabase
       .from('projects')
-      .select('content')
+      .select('content, title')
       .eq('id', projectId)
       .single();
 
@@ -126,6 +127,7 @@ const [value, setValue] = useState<Descendant[]>(INITIAL_EMPTY_STATE);
       } else {
         setValue(data.content);
       }
+      setProjectTitle(data.title || "Untitled");
     }
     setLoading(false);
   };
@@ -219,7 +221,7 @@ const [value, setValue] = useState<Descendant[]>(INITIAL_EMPTY_STATE);
                    'left-28' pushes it right of the w-24 sidebar.
                    'z-[100]' ensures it floats above everything.
                 */}
-                <div className="fixed left-28 top-20 w-56 bg-black border border-gray-700 rounded-lg shadow-2xl z-100 overflow-hidden text-sm animate-in fade-in zoom-in-95 duration-100">
+                <div className="fixed left-26 top-20 w-56 bg-black border border-gray-700 rounded-lg shadow-2xl z-100 overflow-hidden text-sm animate-in fade-in zoom-in-95 duration-100">
                   <button onClick={() => { saveToCloud(value); setIsMenuOpen(false); }} className="w-full text-left px-4 py-3 text-gray-200 hover:bg-gray-700 hover:text-white flex items-center gap-2 transition-colors">
                     <Save size={14} /> <span>Save (Cloud)</span>
                   </button>
@@ -228,14 +230,19 @@ const [value, setValue] = useState<Descendant[]>(INITIAL_EMPTY_STATE);
                   </button>
                   <button onClick={() => { fileInputRef.current?.click(); setIsMenuOpen(false); }} className="w-full text-left px-4 py-3 text-gray-200 hover:bg-gray-700 hover:text-white flex items-center gap-2 transition-colors">
                     <div className="relative"><FileJson size={14} /><div className="absolute -top-1 -right-1 text-[8px] bg-blue-500 rounded-full w-2 h-2"></div></div>
-                    <span>Import JSON</span>
+                    <span>Import</span>
                   </button>
                   <div className="border-t border-gray-700 my-1"></div>
                   <button onClick={() => { exportToPdf(value); setIsMenuOpen(false); }} className="w-full text-left px-4 py-2 text-gray-200 hover:bg-gray-700 hover:text-white flex items-center gap-2 transition-colors">
                     <FileText size={14} /> <span>Export PDF</span>
                   </button>
-                  <button onClick={() => { saveToDisk(value); setIsMenuOpen(false); }} className="w-full text-left px-4 py-2 text-gray-200 hover:bg-gray-700 hover:text-white flex items-center gap-2 transition-colors">
-                    <FileJson size={14} /> <span>Export JSON</span>
+                  <button 
+  onClick={() => { 
+    // Pass the title as the second argument
+    saveToDisk(value, projectTitle); 
+    setIsMenuOpen(false); 
+  }} className="w-full text-left px-4 py-2 text-gray-200 hover:bg-gray-700 hover:text-white flex items-center gap-2 transition-colors">
+                    <FileJson size={14} /> <span>Export</span>
                   </button>
                 </div>
               </>
@@ -288,10 +295,16 @@ const [value, setValue] = useState<Descendant[]>(INITIAL_EMPTY_STATE);
         {/* 3. CENTERED PAPER: Scrollable Container */}
         <div className="flex-1 h-full w-full overflow-y-auto p-8 pb-96 scroll-smooth relative">
             {/* I removed the 'mt-28' from here because the toolbar is no longer fixed at the top.
-               Everything else about the paper is EXACTLY as you had it. 
+               Everything else about the paper is EXACTLY as you had it.
             */}
-            <div className="screenplay-page mx-auto my-10 font-courier text-[12pt] leading-tight text-black selection:bg-yellow-200 shadow-2xl bg-white min-h-[11in] w-[8.5in]">
-                <Slate editor={editor} initialValue={value} onChange={handleEditorChange}>
+            <div className="screenplay-page mx-auto my-10 font-courier text-[12pt] leading-tight text-black selection:bg-gray-200 shadow-2xl bg-white min-h-[11in] w-[8.5in]">
+                <Slate 
+    // CRITICAL FIX: The key changes when data arrives, forcing a refresh
+    key={JSON.stringify(value)} 
+    editor={editor} 
+    initialValue={value} 
+    onChange={handleEditorChange}
+>
                 <Editable
                     renderElement={renderElement}
                     renderLeaf={renderLeaf}
@@ -316,7 +329,7 @@ const [value, setValue] = useState<Descendant[]>(INITIAL_EMPTY_STATE);
         type="file"
         ref={fileInputRef}
         className="hidden"
-        accept=".json,.screenplay"
+        accept=".json,.screenplay,.cinehoria"
         onChange={handleLoadLocalFile}
       />
     </div>

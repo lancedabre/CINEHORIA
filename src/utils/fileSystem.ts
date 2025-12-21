@@ -7,7 +7,7 @@ export const saveToDisk = (content: Descendant[], filename: string = "script") =
   
   const a = document.createElement('a');
   a.href = url;
-  a.download = `${filename}.screenplay`; // Custom extension
+  a.download = `${filename}.cinehoria`; // Custom extension
   a.click();
   URL.revokeObjectURL(url);
 };

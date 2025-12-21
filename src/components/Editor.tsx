@@ -308,6 +308,12 @@ useEffect(() => {
     // 🛡️ SAFETY CHECK: If editor is empty or invalid, stop immediately.
     if (!editor.children || editor.children.length === 0) return;
     
+    if ((e.ctrlKey || e.metaKey) && e.key ==='1') { e.preventDefault(); toggleBlock('scene-heading'); }
+    if ((e.ctrlKey || e.metaKey) && e.key ==='2') { e.preventDefault(); toggleBlock('action'); }
+    if ((e.ctrlKey || e.metaKey) && e.key ==='3') { e.preventDefault(); toggleBlock('character'); }
+    if ((e.ctrlKey || e.metaKey) && e.key ==='4') { e.preventDefault(); toggleBlock('dialogue'); }
+    if ((e.ctrlKey || e.metaKey) && e.key ==='5') { e.preventDefault(); toggleBlock('parenthetical'); }
+    if ((e.ctrlKey || e.metaKey) && e.key ==='6') { e.preventDefault(); toggleBlock('transition'); }
     // Your existing shortcuts
     if ((e.ctrlKey || e.metaKey) && e.key === 'b') { e.preventDefault(); toggleMark(editor, 'bold'); }
     if ((e.ctrlKey || e.metaKey) && e.key === 'i') { e.preventDefault(); toggleMark(editor, 'italic'); }

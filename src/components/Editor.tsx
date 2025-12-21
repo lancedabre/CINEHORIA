@@ -17,7 +17,7 @@ import {
 } from "slate-react";
 import { withHistory } from "slate-history";
 import { withScreenplayLogic, handleTabKey } from "@/hooks/useScreenplayLogic";
-import { saveToDisk, loadFromDisk } from "@/utils/fileSystem";
+import { saveToDisk } from "@/utils/fileSystem";
 import { exportToPdf } from "@/utils/pdfExporter";
 import { ScreenplayType } from "@/types/screenplay";
 import { useCloudStorage } from "@/hooks/useCloudStorage";
@@ -30,9 +30,7 @@ import {
   Bold,
   Italic, 
   Underline,
-  Clapperboard
 } from "lucide-react";
-import { supabase } from '@/lib/supabase';
 import Link from "next/link";
 
 interface EditorProps {

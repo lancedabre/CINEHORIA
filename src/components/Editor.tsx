@@ -136,6 +136,16 @@ const [value, setValue] = useState<Descendant[]>(INITIAL_EMPTY_STATE);
     saveToCloud(newValue);
   };
 
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTitle = e.target.value;
+    
+    // 1. Update the screen immediately (and the variable Export uses)
+    setProjectTitle(newTitle); 
+    
+    // 2. Send the update to the database
+    updateTitle(newTitle);     
+};
+
   const renderElement = useCallback((props: RenderElementProps) => {
     const { attributes, children, element } = props;
     if (!element) return <p {...attributes}>{children}</p>;
@@ -288,12 +298,16 @@ const [value, setValue] = useState<Descendant[]>(INITIAL_EMPTY_STATE);
 </Link>
            <div className="w-50 h-px bg-gray-700 my-2"></div>
            <input
-            type="text"
-            value={title}
-            onChange={(e) => updateTitle(e.target.value)}
-            className="w-[400px] bg-transparent text-right text-1xl font-bold text-white placeholder-gray-700 outline-none"
-            placeholder="Untitled Screenplay"
-          />
+    type="text"
+    // ✅ FIX 1: Bind to 'projectTitle' (Local State), NOT 'title' (Database)
+    value={projectTitle} 
+    
+    // ✅ FIX 2: Use the new handler
+    onChange={handleTitleChange} 
+    
+    className="w-[400px] bg-transparent text-right text-1xl font-bold text-white placeholder-gray-700 outline-none"
+    placeholder="Untitled Screenplay"
+/>
         </div>
 
         {/* 3. CENTERED PAPER: Scrollable Container */}
@@ -304,7 +318,6 @@ const [value, setValue] = useState<Descendant[]>(INITIAL_EMPTY_STATE);
             <div className="screenplay-page mx-auto my-10 font-courier text-[12pt] leading-tight text-black selection:bg-gray-200 shadow-2xl bg-white min-h-[11in] w-[8.5in]">
                 <Slate 
     // CRITICAL FIX: The key changes when data arrives, forcing a refresh
-    key={JSON.stringify(value)} 
     editor={editor} 
     initialValue={value} 
     onChange={handleEditorChange}

@@ -33,7 +33,7 @@ import {
   Clapperboard
 } from "lucide-react";
 import { supabase } from '@/lib/supabase';
-
+import Link from "next/link";
 
 interface EditorProps {
   projectId: string;
@@ -228,10 +228,14 @@ const [value, setValue] = useState<Descendant[]>(INITIAL_EMPTY_STATE);
                   <button onClick={() => router.push("/")} className="w-full text-left px-4 py-3 text-gray-200 hover:bg-gray-700 hover:text-white flex items-center gap-2 transition-colors">
                     <FolderOpen size={14} /> <span>Open Project...</span>
                   </button>
-                  <button onClick={() => { fileInputRef.current?.click(); setIsMenuOpen(false); }} className="w-full text-left px-4 py-3 text-gray-200 hover:bg-gray-700 hover:text-white flex items-center gap-2 transition-colors">
-                    <div className="relative"><FileJson size={14} /><div className="absolute -top-1 -right-1 text-[8px] bg-blue-500 rounded-full w-2 h-2"></div></div>
-                    <span>Import</span>
-                  </button>
+                  <button 
+  onClick={() => { fileInputRef.current?.click(); setIsMenuOpen(false); }} 
+  className="w-full text-left px-4 py-3 text-gray-200 hover:bg-gray-700 hover:text-white flex items-center gap-2 transition-colors"
+>
+  {/* Just the Icon, no wrapper div needed anymore */}
+  <FileJson size={14} />
+  <span>Import</span>
+</button>
                   <div className="border-t border-gray-700 my-1"></div>
                   <button onClick={() => { exportToPdf(value); setIsMenuOpen(false); }} className="w-full text-left px-4 py-2 text-gray-200 hover:bg-gray-700 hover:text-white flex items-center gap-2 transition-colors">
                     <FileText size={14} /> <span>Export PDF</span>
@@ -278,10 +282,12 @@ const [value, setValue] = useState<Descendant[]>(INITIAL_EMPTY_STATE);
         {/* 2. MOVED: Title Input to Top Right (Absolute Position) */}
         <div className="absolute top-6 right-10 flex flex-col items-end z-40">
            {/* Brand Logo */}
-           <div className="flex items-center gap-2 mb-1 opacity-50 hover:opacity-100 transition-opacity select-none">
-              <span className="text-[10px] font-bold tracking-[0.3em] text-[#ff99cc]">CINEHORIA</span>
-              <Clapperboard size={14} className="text-[#ff99cc]"/>
-           </div>
+           <Link 
+  href="/" 
+  className="flex items-center gap-2 mb-1 opacity-50 hover:opacity-100 transition-opacity select-none cursor-pointer"
+>
+  <span className="text-[10px] font-bold tracking-[0.3em] text-[#ff99cc]">CINEHORIA</span>
+</Link>
            <div className="w-50 h-px bg-gray-700 my-2"></div>
            <input
             type="text"
@@ -312,11 +318,15 @@ const [value, setValue] = useState<Descendant[]>(INITIAL_EMPTY_STATE);
                     placeholder="INT. SCENE HEADING - DAY"
                     spellCheck={false}
                     onKeyDown={(e) => {
-                        if ((e.ctrlKey || e.metaKey) && e.key === 'b') { e.preventDefault(); toggleMark(editor, 'bold'); }
-                        if ((e.ctrlKey || e.metaKey) && e.key === 'i') { e.preventDefault(); toggleMark(editor, 'italic'); }
-                        if ((e.ctrlKey || e.metaKey) && e.key === 'u') { e.preventDefault(); toggleMark(editor, 'underline'); }
-                        handleTabKey(editor, e);
-                    }}
+    // 🛡️ SAFETY CHECK: If editor is empty or invalid, stop immediately.
+    if (!editor.children || editor.children.length === 0) return;
+    
+    // Your existing shortcuts
+    if ((e.ctrlKey || e.metaKey) && e.key === 'b') { e.preventDefault(); toggleMark(editor, 'bold'); }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'i') { e.preventDefault(); toggleMark(editor, 'italic'); }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'u') { e.preventDefault(); toggleMark(editor, 'underline'); }
+    handleTabKey(editor, e);
+}}
                 />
                 </Slate>
             </div>

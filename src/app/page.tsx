@@ -128,12 +128,11 @@ export default function Dashboard() {
 
             <div
               className="
-    h-12 w-48                  /* Height and Width of your logo */
-    bg-[url('/logo.png')]      /* The image path */
+    h-16 w-48                  /* Height and Width of your logo */
     bg-contain bg-no-repeat bg-left /* proper scaling */
     mb-2
 "
-            ><p className="text-1xl px-14 py-3 tracking-wider"></p>
+            ><p className="text-6xl text-gray-200 font-bold px-0 py-3 tracking-wider">CINEHORIA</p>
 </div> 
             <div className="flex gap-3">
               {/* IMPORT BUTTON */}

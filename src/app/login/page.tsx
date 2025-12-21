@@ -51,7 +51,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-black text-white bg-[url('/menu-bg.jpg')] bg-cover">
       <div className="bg-black/50 backdrop-blur-md p-8 rounded-2xl border border-white/10 w-96 shadow-2xl">
-        <h1 className="text-2xl font-bold mb-6 text-center tracking-widest text-[#eb60c3]">CINEHORIA</h1>
+        <h1 className="text-2xl font-bold mb-6 text-center tracking-widest text-">CINEHORIA</h1>
         
         <div className="space-y-4">
           <input
@@ -74,7 +74,7 @@ export default function LoginPage() {
           <button 
             onClick={handleLogin}
             disabled={loading}
-            className="w-full bg-[#eb60c3] hover:bg-[#d94db0] text-white font-bold py-3 rounded-lg transition-all disabled:opacity-50"
+            className="w-full border border-[#eb60c3] bg-black hover:bg-[#d94db0]/20 text-white font-bold py-3 rounded-lg transition-all disabled:opacity-50"
           >
             {loading ? 'Processing...' : 'Log In'}
           </button>
@@ -82,7 +82,7 @@ export default function LoginPage() {
           <button 
             onClick={handleSignUp}
             disabled={loading}
-            className="w-full bg-transparent hover:bg-white/10 text-gray-300 font-bold py-3 rounded-lg transition-all text-sm"
+            className="w-full bg-transparent hover:bg-[#d94db0]/20 text-gray-300 font-bold py-3 rounded-lg transition-all text-sm"
           >
             Sign Up
           </button>

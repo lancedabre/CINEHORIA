@@ -108,32 +108,19 @@ export default function ScreenplayEditor({ projectId, setLoading }: EditorProps)
 
 const [value, setValue] = useState<Descendant[]>(INITIAL_EMPTY_STATE);
 
-  useEffect(() => {
-  if (!projectId) return;
-  const fetchProject = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from('projects')
-      .select('content, title')
-      .eq('id', projectId)
-      .single();
+  // Add this right after your useState lines
+useEffect(() => {
+  // Only update if we actually have content from the hook
+  if (content && content.length > 0) {
+    setValue(content);
+  }
+  
+  // Sync the title too
+  if (title) {
+    setProjectTitle(title);
+  }
+}, [content, title]); // <--- Reruns whenever the hook finishes loading
 
-    if (data) {
-      // 🛡️ SECURITY CHECK:
-      // If DB returns empty array (new project) or null, FORCE the default state.
-      // Otherwise Slate will crash.
-      if (!data.content || (Array.isArray(data.content) && data.content.length === 0)) {
-        setValue(INITIAL_EMPTY_STATE);
-      } else {
-        setValue(data.content);
-      }
-      setProjectTitle(data.title || "Untitled");
-    }
-    setLoading(false);
-  };
-
-  fetchProject();
-}, [projectId]);
 
   const handleEditorChange = (newValue: Descendant[]) => {
     setValue(newValue);

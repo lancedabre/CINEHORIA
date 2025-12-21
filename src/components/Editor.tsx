@@ -68,7 +68,7 @@ export default function ScreenplayEditor({ projectId, setLoading }: EditorProps)
     if (leaf.underline) children = <u>{children}</u>;
     return <span {...attributes}>{children}</span>;
   }, []);
-
+  const [hasLoaded, setHasLoaded] = useState(false); // <--- Add this flag
   // --- STATE ---
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const editor = useMemo(
@@ -107,17 +107,28 @@ export default function ScreenplayEditor({ projectId, setLoading }: EditorProps)
 const [value, setValue] = useState<Descendant[]>(INITIAL_EMPTY_STATE);
 
   // Add this right after your useState lines
-useEffect(() => {
-  // Only update if we actually have content from the hook
-  if (content && content.length > 0) {
-    setValue(content);
-  }
-  
-  // Sync the title too
-  if (title) {
-    setProjectTitle(title);
-  }
-}, [content, title]); // <--- Reruns whenever the hook finishes loading
+// 3. SYNC: Only load data ONCE. Never overwrite while user is typing.
+  useEffect(() => {
+    // If we have already loaded, STOP. Do not touch the editor again.
+    if (hasLoaded) return; 
+
+    // Wait for loading to finish
+    if (loading) return;
+
+    if (content && Array.isArray(content) && content.length > 0) {
+        console.log("✅ Initial Load Complete");
+        setValue(content);
+        setHasLoaded(true); // <--- LOCK THE DOOR
+    } else {
+        // Only set empty state if it's truly the first load
+        setValue(INITIAL_EMPTY_STATE);
+        setHasLoaded(true); // <--- LOCK THE DOOR
+    }
+    
+    // Sync Title (We can allow title to sync freely)
+    if (title) setProjectTitle(title);
+
+  }, [loading, content, hasLoaded]);
 
 
   const handleEditorChange = (newValue: Descendant[]) => {

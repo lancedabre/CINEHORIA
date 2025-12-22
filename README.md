@@ -31,7 +31,7 @@
 
 Whether you're outlining your next blockbuster or drafting an indie short, Cinehoria keeps your formatting perfect so you can focus on the story.
 
-<img src="public/screenshot.png" alt="Cinehoria Logo" width="500" />
+<img src="public/screenshot.png" alt="Cinehoria Logo" width="1000" />
 ---
 
 ## ✨ Key Features

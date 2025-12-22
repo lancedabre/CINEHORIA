@@ -148,7 +148,9 @@ export default function Dashboard() {
           {/* Header */}
           <div className="flex justify-between items-center mb-8 border-b border-gray-800 pb-6">
             <div className="h-13 w-48 mb-2 bg-contain bg-no-repeat bg-left" style={{ backgroundImage: "url('/logo5.png')" }}>
+            <p className="text-[10px] ml-15 mt-4.5 font-black tracking-[0.3em] text-white">CINEHORIA STUDIO</p>
             </div> 
+             
             
             <div className="flex gap-3">
               {/* IMPORT BUTTON */}

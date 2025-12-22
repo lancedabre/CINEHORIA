@@ -2,11 +2,6 @@
 import { ScreenplayType } from '@/types/screenplay';
 import { TDocumentDefinitions, Content } from 'pdfmake/interfaces';
 
-type PdfMakeLib = {
-  createPdf: (docDefinition: any, tableLayouts?: any, fonts?: any, vfs?: any) => any;
-  vfs: Record<string, string>;
-};
-
 // Helper: Fetch a file from public folder and convert to Base64
 const getBase64FromUrl = async (url: string): Promise<string> => {
   const response = await fetch(url);
@@ -14,7 +9,6 @@ const getBase64FromUrl = async (url: string): Promise<string> => {
   return new Promise((resolve) => {
     const reader = new FileReader();
     reader.onloadend = () => {
-      // remove the "data:application/octet-stream;base64," prefix
       const base64 = (reader.result as string).split(',')[1]; 
       resolve(base64);
     };
@@ -22,20 +16,35 @@ const getBase64FromUrl = async (url: string): Promise<string> => {
   });
 };
 
+// ✅ FIX: Return type 'any' to stop TypeScript from over-analyzing the nested structure
+const mapSlateToPdf = (children: any[], forceUppercase: boolean = false): any => {
+  return children.map((child) => {
+    const textContent = forceUppercase ? (child.text || "").toUpperCase() : (child.text || "");
+
+    return {
+      text: textContent,
+      bold: child.bold || false,
+      italics: child.italic || false, 
+      decoration: child.underline ? 'underline' : undefined,
+    };
+  });
+};
+
 export const exportToPdf = async (slateNodes: any[]) => {
-  // 1. Dynamic Import
   const pdfMake = (await import('pdfmake/build/pdfmake')).default;
   
-  // 2. Load the Fonts from /public
-  // Ensure these files exist in your public/fonts folder!
+  // Load Fonts
   const vfs: Record<string, string> = {};
-  vfs['CourierPrime-Regular.ttf'] = await getBase64FromUrl('/fonts/CourierPrime-Regular.ttf');
-  vfs['CourierPrime-Bold.ttf']    = await getBase64FromUrl('/fonts/CourierPrime-Bold.ttf');
-  vfs['CourierPrime-Italic.ttf']  = await getBase64FromUrl('/fonts/CourierPrime-Italic.ttf');
-  vfs['CourierPrime-BoldItalic.ttf'] = await getBase64FromUrl('/fonts/CourierPrime-BoldItalic.ttf');
+  // ⚠️ Make sure these fonts exist in your /public/fonts/ folder!
+  try {
+      vfs['CourierPrime-Regular.ttf'] = await getBase64FromUrl('/fonts/CourierPrime-Regular.ttf');
+      vfs['CourierPrime-Bold.ttf']    = await getBase64FromUrl('/fonts/CourierPrime-Bold.ttf');
+      vfs['CourierPrime-Italic.ttf']  = await getBase64FromUrl('/fonts/CourierPrime-Italic.ttf');
+      vfs['CourierPrime-BoldItalic.ttf'] = await getBase64FromUrl('/fonts/CourierPrime-BoldItalic.ttf');
+  } catch (e) {
+      console.warn("Could not load local fonts. PDF might fail or use defaults.");
+  }
 
-  // 3. Configure the Font Family
-  // This object was missing in your previous error
   const fonts = {
     CourierPrime: {
       normal: 'CourierPrime-Regular.ttf',
@@ -45,65 +54,67 @@ export const exportToPdf = async (slateNodes: any[]) => {
     }
   };
 
-  // 4. Map Slate Nodes to PDF Structure
+  // Map Slate Nodes to PDF Structure
   const content: Content[] = slateNodes.map((node: any) => {
-    const text = node.children[0]?.text || "";
     const type = node.type as ScreenplayType;
+    const children = node.children || [];
 
+    // ✅ FIX: Cast each return object 'as Content' so the array is valid
     switch (type) {
       case 'scene-heading':
         return { 
-          text: text.toUpperCase(), 
+          text: mapSlateToPdf(children, true), 
           margin: [0, 24, 0, 12], 
           style: 'scene' 
-        };
+        } as Content;
 
       case 'action':
         return { 
-          text: text, 
+          text: mapSlateToPdf(children), 
           margin: [0, 0, 0, 12] 
-        };
+        } as Content;
 
       case 'character':
         return { 
-          text: text.toUpperCase(), 
-          margin: [158, 12, 0, 0], // ~2.2 inches indent
+          text: mapSlateToPdf(children, true), 
+          margin: [158, 12, 0, 0], 
           keepWithNext: true 
-        };
+        } as Content;
 
       case 'dialogue':
         return { 
-          text: text, 
-          margin: [72, 0, 72, 0] // 1 inch indent
-        };
+          text: mapSlateToPdf(children), 
+          margin: [72, 0, 72, 0] 
+        } as Content;
 
       case 'parenthetical':
         return { 
-          text: `(${text})`, 
-          italics: true,
-          margin: [115, 0, 0, 0] // ~1.6 inches indent
-        };
+          text: [
+            { text: '(', italics: true },
+            ...mapSlateToPdf(children),
+            { text: ')', italics: true } 
+          ],
+          margin: [115, 0, 0, 0] 
+        } as Content;
 
       case 'transition':
         return {
-            text: text.toUpperCase(),
-            bold: true,
+            text: mapSlateToPdf(children, true), 
             alignment: 'right',
             margin: [0, 12, 0, 12]
-        };
+        } as Content;
         
       default:
         return { 
-          text: text, 
+          text: mapSlateToPdf(children), 
           margin: [0, 0, 0, 12] 
-        };
+        } as Content;
     }
   });
 
-  // 5. Define the Document
   const docDefinition: TDocumentDefinitions = {
     pageSize: 'LETTER',
-    pageMargins: [108, 72, 72, 72], // 1.5in Left, 1in Top/Right/Bot
+    pageMargins: [108, 72, 72, 72], 
     content: content,
     defaultStyle: {
       font: 'CourierPrime',
@@ -121,6 +132,5 @@ export const exportToPdf = async (slateNodes: any[]) => {
     }
   };
 
-  // 6. Generate (pass docDefinition, layout, fonts, and vfs)
   pdfMake.createPdf(docDefinition, undefined, fonts, vfs).download('screenplay.pdf');
 };

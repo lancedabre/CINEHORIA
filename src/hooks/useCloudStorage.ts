@@ -15,7 +15,7 @@ export const useCloudStorage = (projectId: string) => {
   useEffect(() => {
     const fetchProject = async () => {
       setLoading(true);
-      const { data, error } = await supabase.from('projects').select('*').eq('id', projectId).single();
+      const { data } = await supabase.from('projects').select('*').eq('id', projectId).single();
       
       if (data) {
         if (data.content && Array.isArray(data.content) && data.content.length > 0) {
@@ -31,8 +31,6 @@ export const useCloudStorage = (projectId: string) => {
   // 2. Save Function (Debounced)
   const saveToCloud = useCallback(async (newContent: Descendant[]) => {
     setSaveStatus('saving');
-    // Note: In a real app, you'd use a debounce function (like lodash.debounce) here
-    // to avoid hitting the DB on every keystroke.
     const { error } = await supabase
         .from('projects')
         .update({ content: newContent, updated_at: new Date().toISOString() })

@@ -40,7 +40,6 @@ interface EditorProps {
 
 export default function ScreenplayEditor({
   projectId,
-  setLoading,
 }: EditorProps) {
   const router = useRouter();
   const { content, title, updateTitle, loading, saveToCloud, saveStatus } =
@@ -55,11 +54,6 @@ export default function ScreenplayEditor({
   const [value, setValue] = useState<Descendant[]>(INITIAL_EMPTY_STATE);
   const [editorKey, setEditorKey] = useState("initial-load");
   const [projectTitle, setProjectTitle] = useState("Untitled");
-  // --- HELPERS (Copied exactly from your code) ---
-  const isBoldMarkActive = (editor: Editor) => {
-    const marks = Editor.marks(editor);
-    return marks ? marks.bold === true : false;
-  };
 
   
 
@@ -97,8 +91,7 @@ export default function ScreenplayEditor({
     if (leaf.underline) children = <u>{children}</u>;
     return <span {...attributes}>{children}</span>;
   }, []);
-  const [hasLoaded, setHasLoaded] = useState(false); // <--- Add this flag
-  // --- STATE ---
+  const [hasLoaded, setHasLoaded] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const editor = useMemo(
     () => withScreenplayLogic(withHistory(withReact(createEditor()))),
@@ -127,20 +120,15 @@ export default function ScreenplayEditor({
       if (e.target) e.target.value = "";
     }
   };
-  // Add this right after your useState lines
-  // 3. SYNC: Only load data ONCE. Never overwrite while user is typing.
-  // 3. SYNC: Smart Loading Logic
-  // 3. SYNC: Smart Loading Logic
-  // 3. SYNC: Smart Loading Logic
+
   useEffect(() => {
-    // A. If still loading, do nothing.
     if (loading) return;
 
-    // B. Validation
+    //Validation
     const isIncomingDataValid =
       content && Array.isArray(content) && content.length > 0;
 
-    // C. Check if editor is empty (Safe to overwrite?)
+    //Check if editor is empty (Safe to overwrite?)
     const isEditorEmpty =
       !value ||
       value.length === 0 ||
@@ -148,28 +136,27 @@ export default function ScreenplayEditor({
         (value[0] as any).type === "paragraph" &&
         !(value[0] as any).children[0].text);
 
-    // D. SCENARIOS
+    //SCENARIOS
 
     // Scenario 1: First Real Load -> Load & Force Refresh
     if (!hasLoaded && isIncomingDataValid) {
       console.log("✅ Loaded Script from Cloud");
       setValue(content);
       setHasLoaded(true);
-      setEditorKey(Date.now().toString()); // <--- FORCE SLATE TO REFRESH
+      setEditorKey(Date.now().toString());
     }
 
     // Scenario 2: Late Data Arrival -> Load & Force Refresh (Only if safe)
     else if (hasLoaded && isEditorEmpty && isIncomingDataValid) {
       console.log("🔄 Late Data Arrival - Updating Empty Editor");
       setValue(content);
-      setEditorKey(Date.now().toString()); // <--- FORCE SLATE TO REFRESH
+      setEditorKey(Date.now().toString());
     }
 
     // Scenario 3: Fallback (No data found)
     else if (!hasLoaded && !isIncomingDataValid) {
       setValue(INITIAL_EMPTY_STATE);
       setHasLoaded(true);
-      // No need to refresh key here, the empty state is already fine
     }
 
     if (title && !hasLoaded) setProjectTitle(title);
@@ -219,19 +206,18 @@ export default function ScreenplayEditor({
         return (
           <p
             {...attributes}
-            // 1. Removed 'italic' and 'text-gray-600' (Screenplays should be standard black)
             className="mb-0 text-sm text-black"
-            style={{ marginLeft: "2.0in", maxWidth: "15ch" }} // Tweaked margins slightly to look more standard
+            style={{ marginLeft: "2.0in", maxWidth: "15ch" }}
           >
-            {/* 2. The Opening Bracket (Un-deletable) */}
+            {/* 2. The Opening Bracket (Undeletable) */}
             <span contentEditable={false} className="select-none mr-1px">
               (
             </span>
 
-            {/* 3. The Actual Text */}
+            {/*The Actual Text */}
             {children}
 
-            {/* 4. The Closing Bracket (Un-deletable) */}
+            {/* 4. The Closing Bracket (Undeletable) */}
             <span contentEditable={false} className="select-none ml-1px">
               )
             </span>
@@ -269,9 +255,8 @@ export default function ScreenplayEditor({
   }
 
   return (
-    // 1. CHANGED: Main Container to Flex Row (Horizontal Layout)
     <div className="flex h-screen w-full bg-black overflow-hidden font-sans">
-      {/* --- LEFT SIDEBAR (The Taskbar) --- */}
+      {/* --- LEFT SIDEBAR/The Taskbar --- */}
       <aside className="w-24 bg-black border-r border-gray-900 flex flex-col items-center py-4 gap-4 z-50 shadow-xl overflow-y-auto custom-scrollbar">
         {/* Cloud Status */}
         <div
@@ -283,7 +268,7 @@ export default function ScreenplayEditor({
           </span>
         </div>
 
-        {/* File Menu (Compact) */}
+        {/* File Menu*/}
         <div className="relative w-full px-2">
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
@@ -300,11 +285,6 @@ export default function ScreenplayEditor({
                 className="fixed inset-0 z-99"
                 onClick={() => setIsMenuOpen(false)}
               />
-
-              {/* FIX: Changed from 'absolute' to 'fixed'. 
-                   'left-28' pushes it right of the w-24 sidebar.
-                   'z-[100]' ensures it floats above everything.
-                */}
               <div className="fixed left-26 top-20 w-56 bg-black border border-gray-700 rounded-lg shadow-2xl z-100 overflow-hidden text-sm animate-in fade-in zoom-in-95 duration-100">
                 <button
                   onClick={() => {
@@ -328,7 +308,6 @@ export default function ScreenplayEditor({
                   }}
                   className="w-full text-left px-4 py-3 text-gray-200 hover:bg-gray-700 hover:text-white flex items-center gap-2 transition-colors"
                 >
-                  {/* Just the Icon, no wrapper div needed anymore */}
                   <FileJson size={14} />
                   <span>Import</span>
                 </button>
@@ -344,7 +323,6 @@ export default function ScreenplayEditor({
                 </button>
                 <button
                   onClick={() => {
-                    // Pass the title as the second argument
                     saveToDisk(value, projectTitle);
                     setIsMenuOpen(false);
                   }}
@@ -359,7 +337,7 @@ export default function ScreenplayEditor({
 
         <div className="w-10 h-px bg-gray-700"></div>
 
-        {/* Format Buttons (Stacked Vertically) */}
+        {/* Format Buttons*/}
         <div className="flex flex-col w-full px-2 gap-2">
           <FormatButton
             label="HEAD"
@@ -391,7 +369,7 @@ export default function ScreenplayEditor({
 
         <div className="w-10 h-px bg-gray-700"></div>
 
-        {/* Style Icons (Vertical or Grid) */}
+        {/* Style Icons*/}
         <div className="flex flex-col gap-2 w-full px-4">
           <FormatIconButton
             icon={<Bold size={16} />}
@@ -411,11 +389,10 @@ export default function ScreenplayEditor({
         </div>
       </aside>
 
-      {/* --- RIGHT CONTENT AREA --- */}
+      {/*RIGHT CONTENT AREA*/}
       <main className="flex-1 flex flex-col h-full relative">
-        {/* 2. MOVED: Title Input to Top Right (Absolute Position) */}
         <div className="absolute top-6 right-10 flex flex-col items-end z-40">
-          {/* Brand Logo */}
+          {/*Logo*/}
           <Link
             href="/"
             className="flex items-center gap-2 mb-1 opacity-50 hover:opacity-100 transition-opacity select-none cursor-pointer"
@@ -431,23 +408,17 @@ export default function ScreenplayEditor({
           <div className="w-50 h-px bg-gray-700 my-2"></div>
           <input
             type="text"
-            // ✅ FIX 1: Bind to 'projectTitle' (Local State), NOT 'title' (Database)
             value={projectTitle}
-            // ✅ FIX 2: Use the new handler
             onChange={handleTitleChange}
             className="w-[400px] bg-transparent text-right text-1xl font-bold text-white placeholder-gray-700 outline-none"
             placeholder="Untitled Screenplay"
           />
         </div>
 
-        {/* 3. CENTERED PAPER: Scrollable Container */}
+        {/*CENTERED PAPER*/}
         <div className="flex-1 h-full w-full overflow-y-auto p-8 pb-96 scroll-smooth relative">
-          {/* I removed the 'mt-28' from here because the toolbar is no longer fixed at the top.
-               Everything else about the paper is EXACTLY as you had it.
-            */}
           <div className="screenplay-page mx-auto my-10 font-courier text-[12pt] leading-tight text-black selection:bg-gray-200 shadow-2xl bg-white min-h-[11in] w-[8.5in]">
             <Slate
-              // CRITICAL FIX: The key changes when data arrives, forcing a refresh
               key={editorKey}
               editor={editor}
               initialValue={value}
@@ -456,11 +427,11 @@ export default function ScreenplayEditor({
               <Editable
                 renderElement={renderElement}
                 renderLeaf={renderLeaf}
-                className="outline-none focus:outline-none focus:ring-0 min-h-[10in]" // Added padding inside the paper so text doesn't hit edge
+                className="outline-none focus:outline-none focus:ring-0 min-h-[10in]"
                 placeholder="INT. SCENE HEADING - DAY"
                 spellCheck={false}
                 onKeyDown={(e) => {
-                  // 🛡️ SAFETY CHECK: If editor is empty or invalid, stop immediately.
+                  //SAFETY CHECK: If editor is empty or invalid, stop immediately.
                   if (!editor.children || editor.children.length === 0) return;
 
                   if ((e.ctrlKey || e.metaKey) && e.key === "1") {
@@ -487,7 +458,6 @@ export default function ScreenplayEditor({
                     e.preventDefault();
                     toggleBlock("transition");
                   }
-                  // Your existing shortcuts
                   if ((e.ctrlKey || e.metaKey) && e.key === "b") {
                     e.preventDefault();
                     toggleMark(editor, "bold");
@@ -520,9 +490,7 @@ export default function ScreenplayEditor({
   );
 }
 
-// -------------------------------------------------------------------------
 // Helper Component: FormatButton
-// -------------------------------------------------------------------------
 interface FormatButtonProps {
   label: string;
   format: ScreenplayType;
@@ -549,9 +517,7 @@ const FormatButton = ({ label, format, onToggle }: FormatButtonProps) => {
   );
 };
 
-// -------------------------------------------------------------------------
 // Helper Component: FormatIconButton
-// -------------------------------------------------------------------------
 interface IconBtnProps {
   icon: React.ReactNode;
   isActive: boolean;

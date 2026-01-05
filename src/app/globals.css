@@ -24,22 +24,20 @@ body {
 
 /* --- THE PAPER CONTAINER --- */
 .screenplay-page {
-  /* Dimensions */
+  
   width: 8.5in;
   min-height: 11in;
   
-  /* Padding: This is the "Anchor" 
-     All inline styles in Editor.tsx are relative to this 1.5in padding.
-  */
+  
   padding: 1in 1.5in; 
   
   /* Visuals */
   background: white;
-  box-shadow: 0 0 20px rgba(0,0,0,0.1); /* Nice 3D shadow */
+  box-shadow: 0 0 20px rgba(0,0,0,0.1); 
   
   /* Text Defaults */
-  color: black; /* Always black text, even in dark mode */
+  color: black; 
   font-family: "Courier Prime", "Courier", monospace;
   font-size: 12pt;
-  line-height: 1; /* Single spacing is standard for scripts */
+  line-height: 1; 
 }

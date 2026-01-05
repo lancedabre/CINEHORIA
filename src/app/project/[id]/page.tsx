@@ -1,10 +1,8 @@
 'use client'
-import React from 'react';
 import { useParams } from 'next/navigation';
 import ScreenplayEditor from '@/components/Editor';
 import { useState } from 'react';
 
-// This 'export default' is what Next.js is looking for!
 export default function ProjectPage() {
   const params = useParams();
   const [loading, setLoading] = useState(true);

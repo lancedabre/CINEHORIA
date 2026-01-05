@@ -16,12 +16,12 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   
-  // ✅ Initialize Supabase Client
+  
   const supabase = createClient();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // 1. Fetch Projects on Load
+  //Fetch Projects on Load
   useEffect(() => {
     fetchProjects();
   }, []);
@@ -29,7 +29,7 @@ export default function Dashboard() {
   async function fetchProjects() {
     const { data: { user } } = await supabase.auth.getUser();
     
-    // If not logged in, redirect to login
+    //If not logged in, redirect to login
     if (!user) {
         router.push('/login');
         return;
@@ -46,14 +46,14 @@ export default function Dashboard() {
     setLoading(false);
   }
 
-  // 2. Create New Project Function
+  //Create New Project Function
   const createProject = async () => {  
     setLoading(true); 
 
-    // 1. Check if we are logged in
+    //Check if we are logged in
     const { data: { user } } = await supabase.auth.getUser();
 
-    // 2. SAFETY CHECK: If no user, kick them out immediately
+    //SAFETY CHECK: If no user, kick them out immediately
     if (!user) {
         console.log("User is null! Redirecting to login...");
         alert("Session expired. Please log in again.");
@@ -62,13 +62,13 @@ export default function Dashboard() {
         return; // <--- STOP HERE. Do not try to insert.
     }
 
-    // 3. Create Project (Only runs if user exists)
+    //Create Project (Only runs if user exists)
     const { data, error } = await supabase
         .from('projects')
         .insert([{ 
             title: 'Untitled Screenplay', 
             content: [{ type: 'paragraph', children: [{ text: '' }] }], 
-            user_id: user.id // <--- Now we know this is safe
+            user_id: user.id
         }])
         .select()
         .single();
@@ -83,7 +83,7 @@ export default function Dashboard() {
     setLoading(false);
   };
 
-  // 3. Delete Project Function
+  //Delete Project Function
   const deleteProject = async (id: string, e: React.MouseEvent) => {
     e.preventDefault(); 
     e.stopPropagation();
@@ -94,7 +94,7 @@ export default function Dashboard() {
     fetchProjects(); 
   };
 
-  // 4. Import Project Function
+  //Import Project Function
   const handleImportProject = async (
     e: React.ChangeEvent<HTMLInputElement>
   ) => {
@@ -105,7 +105,7 @@ export default function Dashboard() {
       const text = await file.text();
       const json = JSON.parse(text);
 
-      // ✅ Get User ID before importing
+      //Get User ID before importing
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
@@ -115,7 +115,7 @@ export default function Dashboard() {
           {
             title: file.name.replace(".cinehoria", "").replace(".json", ""), 
             content: json,
-            user_id: user.id // ✅ CRITICAL FIX: Assign to user
+            user_id: user.id
           },
         ])
         .select()
@@ -139,7 +139,7 @@ export default function Dashboard() {
       
       {/* Sidebar / Branding */}
       <div className="w-16 h-full flex flex-col items-center justify-center select-none z-20 shrink-0">
-        {/* Sidebar content (optional) */}
+        {/* Sidebar content*/}
       </div>
 
       <div className="flex-1 overflow-y-auto p-8">

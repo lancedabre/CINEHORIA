@@ -1,4 +1,4 @@
-import { Editor, Transforms, Element as SlateElement, Range } from 'slate';
+import { Editor, Transforms, Element as SlateElement} from 'slate';
 import { ScreenplayType } from '@/types/screenplay';
 
 export const withScreenplayLogic = (editor: Editor) => {
@@ -25,7 +25,7 @@ export const withScreenplayLogic = (editor: Editor) => {
         case 'scene-heading': nextType = 'action'; break;
         case 'character':     nextType = 'dialogue'; break;
         case 'parenthetical': nextType = 'dialogue'; break;
-        case 'dialogue':      nextType = 'action'; break; // Fast dialogue switching
+        case 'dialogue':      nextType = 'action'; break;
         case 'transition':    nextType = 'scene-heading'; break;
         default:              nextType = 'action';
       }
@@ -44,7 +44,6 @@ export const withScreenplayLogic = (editor: Editor) => {
 };
 
 // 2. Handle "Tab" Key (The Type Switcher)
-// Call this inside your onKeyDown handler in the component
 export const handleTabKey = (editor: Editor, event: React.KeyboardEvent) => {
   if (event.key !== 'Tab') return;
 
@@ -61,7 +60,6 @@ export const handleTabKey = (editor: Editor, event: React.KeyboardEvent) => {
 
   let newType: ScreenplayType = type;
 
-  // Logic: Tab cycles through types based on context
   if (type === 'scene-heading') newType = 'action';
   else if (type === 'character') newType = 'dialogue';
   else if (type === 'transition') newType = 'scene-heading';

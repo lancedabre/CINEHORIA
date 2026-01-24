@@ -49,11 +49,10 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen relative flex items-center justify-center bg-black text-white bg-[url('/menu-bg.webp')] bg-cover">
+    <div className="min-h-screen relative flex bg-black text-white bg-[url('/menu-bg.jpg')] bg-cover">
         <div className="absolute top-8 left-8 z-10 h-13 w-48 bg-contain bg-no-repeat" style={{ backgroundImage: "url('/logo5.png')" }}>
             </div> 
-      <div className="bg-black/50 backdrop-blur-md p-8 rounded-2xl border border-white/10 w-96 shadow-2xl">
-        <h1 className="text-2xl font-bold mb-6 text-center tracking-widest text-">CINEHORIA</h1>
+<div className="bg-black/50 backdrop-blur-md p-8 border border-white/10 w-150 shadow-2xl flex flex-col justify-center min-h-[500px] relative">        <h1 className="text-2xl font-regular mb-6 tracking-widest text-center text-">CINEHORIA</h1>
         
         <div className="space-y-4">
           <input
@@ -76,7 +75,7 @@ export default function LoginPage() {
           <button 
             onClick={handleLogin}
             disabled={loading}
-            className="w-full border border-[#eb60c3] bg-black hover:bg-[#d94db0]/20 text-white font-bold py-3 rounded-lg transition-all disabled:opacity-50"
+            className="w-full bg-black hover:bg-[#d94db0]/20 text-white font-bold py-3 rounded-lg transition-all disabled:opacity-50"
           >
             {loading ? 'Processing...' : 'Log In'}
           </button>
@@ -89,6 +88,12 @@ export default function LoginPage() {
             Sign Up
           </button>
         </div>
+        <p className="absolute bottom-8 left-80 text-right text-xs text-white/95">
+            Use 'test@cinehoria.com' & '123' to test <br></br>it out. Email 'cinehoria@gmail.com' for free access. <br></br>Do not use as your primary screenplay editor.
+          </p>
+        <p className="absolute bottom-8 left-8 text-left text-xs text-white/50">
+            Created by and <br/> for the personal use of Lance.
+        </p>
       </div>
     </div>
   )

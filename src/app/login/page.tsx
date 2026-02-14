@@ -52,7 +52,8 @@ export default function LoginPage() {
     <div className="min-h-screen relative flex bg-black text-white bg-[url('/menu-bg.jpg')] bg-cover">
         <div className="absolute top-8 left-8 z-10 h-13 w-48 bg-contain bg-no-repeat" style={{ backgroundImage: "url('/logo5.png')" }}>
             </div> 
-<div className="bg-black/50 backdrop-blur-md p-8 border border-white/10 w-150 shadow-2xl flex flex-col justify-center min-h-[500px] relative">        <h1 className="text-2xl font-regular mb-6 tracking-widest text-center text-">CINEHORIA</h1>
+<div className="bg-black p-8 border border-white/10 w-150 shadow-2xl flex flex-col justify-center min-h-[500px] relative">
+<h1 className="text-2xl font-regular mb-6 tracking-widest text-center font-bold">CINEHORIA</h1>
         
         <div className="space-y-4">
           <input
@@ -75,7 +76,7 @@ export default function LoginPage() {
           <button 
             onClick={handleLogin}
             disabled={loading}
-            className="w-full bg-black hover:bg-[#d94db0]/20 text-white font-bold py-3 rounded-lg transition-all disabled:opacity-50"
+            className="w-full bg-black border border-white/10 hover:bg-[#d94db0]/20 text-white font-bold py-3 rounded-lg transition-all disabled:opacity-50"
           >
             {loading ? 'Processing...' : 'Log In'}
           </button>

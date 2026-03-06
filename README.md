@@ -30,7 +30,7 @@
 **Cinehoria** is a sleek, web-based screenplay editor designed for focus and creativity. Built to rival industry standards like Final Draft, it offers standardized screenplay formatting, real-time cloud sync, and a distraction-free "dark mode" environment.
 
 Whether you're outlining your next blockbuster or drafting an indie short, Cinehoria keeps your formatting perfect so you can focus on the story.
-<img src="public/screenshot2.png" width="1000" />
+<img src="public/screenshot1.png" width="49%" /> <img src="public/screenshot2.png" width="49%" />
 <img src="public/screenshot.png" alt="Cinehoria Logo" width="1000" />
 
 ---

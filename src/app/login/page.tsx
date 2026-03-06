@@ -53,7 +53,7 @@ export default function LoginPage() {
     <div className="h-screen w-full flex p-6 md:p-8 bg-black text-white bg-[url('/menu-bg.jpg')] bg-cover">
 
         {/* Changed: h-full (respects parent padding), rounded-3xl restored, borders restored all around */}
-        <div className="h-full w-full max-w-4xl bg-black/30 backdrop-blur-md border border-white/20 rounded-3xl p-10 md:p-14 shadow-2xl flex flex-col justify-center relative z-10">
+        <div className="h-full w-full max-w-3xl bg-black/30 backdrop-blur-md border border-white/20 rounded-3xl p-10 md:p-14 shadow-2xl flex flex-col justify-center relative z-10">
           
           {/* Logo */}
           <div className="absolute top-10 left-10 h-13 w-48 bg-contain bg-no-repeat" style={{ backgroundImage: "url('/logo5.png')" }}>

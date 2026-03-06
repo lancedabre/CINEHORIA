@@ -41,7 +41,7 @@ Whether you're outlining your next blockbuster or drafting an indie short, Cineh
     </td>
   </tr>
 </table>
-<img src="public/screenshot.png" alt="Cinehoria Logo" width="1000" />
+<img src="public/screenshot3.png" alt="Cinehoria Logo" width="1000" />
 
 ---
 

@@ -34,7 +34,7 @@ Whether you're outlining your next blockbuster or drafting an indie short, Cineh
 <table>
   <tr>
     <td>
-      <img src="public/screenshot1.png" alt="First Image" width="100%" />
+      <img src="public/screenshot.png" alt="First Image" width="100%" />
     </td>
     <td>
       <img src="public/screenshot2.png" alt="Second Image" width="100%" />

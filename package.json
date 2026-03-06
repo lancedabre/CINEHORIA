@@ -4,7 +4,7 @@
   "license": "MIT",
   "private": true,
   "scripts": {
-    "dev": "next dev --hostname 127.0.0.1 --port 3002",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "eslint"
@@ -13,7 +13,7 @@
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.89.0",
     "lucide-react": "^0.561.0",
-    "next": "^16.1.6",
+    "next": "16.1.6",
     "pdfmake": "^0.2.20",
     "react": "19.2.1",
     "react-dom": "19.2.1",

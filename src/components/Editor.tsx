@@ -170,7 +170,7 @@ export default function ScreenplayEditor({
         return (
           <h3
             {...attributes}
-            className="mt-8 mb-4 text-left w-full"
+            className="mt-8 mb-3 text-left w-full"
             style={{ textTransform: "uppercase" }}
           >
             {children}
@@ -178,7 +178,7 @@ export default function ScreenplayEditor({
         );
       case "action":
         return (
-          <p {...attributes} className="mb-4 text-left">
+          <p {...attributes} className="mb-3 text-left">
             {children}
           </p>
         );
@@ -186,7 +186,7 @@ export default function ScreenplayEditor({
         return (
           <p
             {...attributes}
-            className="mt-4 mb-0"
+            className="mt-3 mb-0"
             style={{ marginLeft: "2.2in", textTransform: "uppercase" }}
           >
             {children}
@@ -217,7 +217,7 @@ export default function ScreenplayEditor({
             {/*The Actual Text */}
             {children}
 
-            {/* 4. The Closing Bracket (Undeletable) */}
+            {/* 3. The Closing Bracket (Undeletable) */}
             <span contentEditable={false} className="select-none ml-1px">
               )
             </span>
@@ -227,7 +227,7 @@ export default function ScreenplayEditor({
         return (
           <p
             {...attributes}
-            className="text-right mt-4 mb-4"
+            className="text-right mt-3 mb-3"
             style={{ textTransform: "uppercase" }}
           >
             {children}
@@ -257,14 +257,14 @@ export default function ScreenplayEditor({
   return (
     <div className="flex h-screen w-full bg-black overflow-hidden font-sans">
       {/* --- LEFT SIDEBAR/The Taskbar --- */}
-      <aside className="w-24 bg-black border-r border-gray-900 flex flex-col items-center py-4 gap-4 z-50 shadow-xl overflow-y-auto custom-scrollbar">
+      <aside className="w-24 bg-black border-r border-gray-900 flex flex-col items-center py-3 gap-3 z-50 shadow-xl overflow-y-auto custom-scrollbar">
         {/* Cloud Status */}
         <div
           title={saveStatus === "saving" ? "Saving..." : "Saved"}
           className="mb-2"
         >
           <span className="text-xs">
-            {saveStatus === "saving" ? "☁️" : "saved ✔️"}
+            {saveStatus === "saving" ? "☁️" : "saved"}
           </span>
         </div>
 
@@ -272,7 +272,7 @@ export default function ScreenplayEditor({
         <div className="relative w-full px-2">
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="w-full aspect-square hover:bg-gray-600/60 rounded-2xl flex flex-col items-center justify-center text-white transition-colors gap-1"
+            className="w-full aspect-square hover:bg-gray-600/60 rounded-4xl flex flex-col items-center justify-center text-white transition-colors gap-1"
           >
             <FolderOpen size={20} />
           </button>
@@ -285,19 +285,19 @@ export default function ScreenplayEditor({
                 className="fixed inset-0 z-99"
                 onClick={() => setIsMenuOpen(false)}
               />
-              <div className="fixed left-26 top-20 w-56 bg-black border border-gray-700 rounded-lg shadow-2xl z-100 overflow-hidden text-sm animate-in fade-in zoom-in-95 duration-100">
+              <div className="fixed left-26 top-20 w-48 bg-black border border-gray-700 rounded-4xl shadow-2xl z-100 overflow-hidden text-xs animate-in fade-in zoom-in-95 duration-100">
                 <button
                   onClick={() => {
                     saveToCloud(value);
                     setIsMenuOpen(false);
                   }}
-                  className="w-full text-left px-4 py-3 text-gray-200 hover:bg-gray-700 hover:text-white flex items-center gap-2 transition-colors"
+                  className="w-full text-left px-6 py-3 pt-4 text-gray-200 hover:bg-gray-700 hover:text-white flex items-center gap-2 transition-colors"
                 >
                   <Save size={14} /> <span>Save (Cloud)</span>
                 </button>
                 <button
                   onClick={() => router.push("/")}
-                  className="w-full text-left px-4 py-3 text-gray-200 hover:bg-gray-700 hover:text-white flex items-center gap-2 transition-colors"
+                  className="w-full text-left px-6 py-3 text-gray-200 hover:bg-gray-700 hover:text-white flex items-center gap-2 transition-colors"
                 >
                   <FolderOpen size={14} /> <span>Open Project...</span>
                 </button>
@@ -306,7 +306,7 @@ export default function ScreenplayEditor({
                     fileInputRef.current?.click();
                     setIsMenuOpen(false);
                   }}
-                  className="w-full text-left px-4 py-3 text-gray-200 hover:bg-gray-700 hover:text-white flex items-center gap-2 transition-colors"
+                  className="w-full text-left px-6 py-3 text-gray-200 hover:bg-gray-700 hover:text-white flex items-center gap-2 transition-colors"
                 >
                   <FileJson size={14} />
                   <span>Import</span>
@@ -317,7 +317,7 @@ export default function ScreenplayEditor({
                     exportToPdf(value);
                     setIsMenuOpen(false);
                   }}
-                  className="w-full text-left px-4 py-2 text-gray-200 hover:bg-gray-700 hover:text-white flex items-center gap-2 transition-colors"
+                  className="w-full text-left px-6 py-2 text-gray-200 hover:bg-gray-700 hover:text-white flex items-center gap-2 transition-colors"
                 >
                   <FileText size={14} /> <span>Export PDF</span>
                 </button>
@@ -326,7 +326,7 @@ export default function ScreenplayEditor({
                     saveToDisk(value, projectTitle);
                     setIsMenuOpen(false);
                   }}
-                  className="w-full text-left px-4 py-2 text-gray-200 hover:bg-gray-700 hover:text-white flex items-center gap-2 transition-colors"
+                  className="w-full text-left px-6 py-2 pb-4 text-gray-200 hover:bg-gray-700 hover:text-white flex items-center gap-2 transition-colors"
                 >
                   <FileJson size={14} /> <span>Export</span>
                 </button>
@@ -338,7 +338,7 @@ export default function ScreenplayEditor({
         <div className="w-10 h-px bg-gray-700"></div>
 
         {/* Format Buttons*/}
-        <div className="flex flex-col w-full px-2 gap-2">
+        <div className="flex flex-col items-center justify-center align-left w-full px-2 gap-2">
           <FormatButton
             label="HEAD"
             format="scene-heading"
@@ -346,7 +346,7 @@ export default function ScreenplayEditor({
           />
           <FormatButton label="ACTION" format="action" onToggle={toggleBlock} />
           <FormatButton
-            label="CHARACTER"
+            label="CHAR"
             format="character"
             onToggle={toggleBlock}
           />
@@ -356,12 +356,12 @@ export default function ScreenplayEditor({
             onToggle={toggleBlock}
           />
           <FormatButton
-            label="PARENTHESES"
+            label="PARENS"
             format="parenthetical"
             onToggle={toggleBlock}
           />
           <FormatButton
-            label="TRANSITION"
+            label="TRANS"
             format="transition"
             onToggle={toggleBlock}
           />
@@ -370,7 +370,7 @@ export default function ScreenplayEditor({
         <div className="w-10 h-px bg-gray-700"></div>
 
         {/* Style Icons*/}
-        <div className="flex flex-col gap-2 w-full px-4">
+        <div className="flex flex-col gap-2 w-full px-3">
           <FormatIconButton
             icon={<Bold size={16} />}
             isActive={isMarkActive(editor, "bold")}
@@ -401,7 +401,7 @@ export default function ScreenplayEditor({
               CINEHORIA
             </span>
             <div
-              className="h-4 w-4 mb-0 bg-contain bg-no-repeat bg-left"
+              className="h-3 w-3 mb-0 bg-contain bg-no-repeat bg-left"
               style={{ backgroundImage: "url('/logo5.png')" }}
             ></div>
           </Link>
@@ -446,7 +446,7 @@ export default function ScreenplayEditor({
                     e.preventDefault();
                     toggleBlock("character");
                   }
-                  if ((e.ctrlKey || e.metaKey) && e.key === "4") {
+                  if ((e.ctrlKey || e.metaKey) && e.key === "3") {
                     e.preventDefault();
                     toggleBlock("dialogue");
                   }
@@ -505,7 +505,7 @@ const FormatButton = ({ label, format, onToggle }: FormatButtonProps) => {
         onToggle(format);
       }}
       className="
-        w-full py-2 
+        w-full py-2 pl-3 text-left
         text-[9px] font-bold uppercase tracking-wider 
         text-gray-400 
         hover:bg-gray-600 hover:text-white 

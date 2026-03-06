@@ -4,6 +4,8 @@ import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Upload, Plus, Trash2, FileText } from "lucide-react";
+import Image from "next/image";
+
 
 type Project = {
   id: string;
@@ -15,11 +17,34 @@ export default function Dashboard() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  
-  
+
+
   const supabase = createClient();
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // 1. Array of images in your public folder
+  const BACKGROUND_IMAGES = [
+    '/1.png',
+    '/2b.png',
+    '/3.png',
+    '/4.png',
+    '/6.png',
+    '/7.png',
+  ];
+
+  // 2. State to track which image is currently showing
+  const [bgIndex, setBgIndex] = useState(0);
+
+  // 3. The 5-minute timer
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setBgIndex((prevIndex) => (prevIndex + 1) % BACKGROUND_IMAGES.length);
+    }, 5 * 60 * 1000); // 5 minutes in milliseconds (300,000)
+
+    // Cleanup the timer if the user leaves the page
+    return () => clearInterval(interval);
+  }, []);
 
   //Fetch Projects on Load
   useEffect(() => {
@@ -28,11 +53,11 @@ export default function Dashboard() {
 
   async function fetchProjects() {
     const { data: { user } } = await supabase.auth.getUser();
-    
+
     //If not logged in, redirect to login
     if (!user) {
-        router.push('/login');
-        return;
+      router.push('/login');
+      return;
     }
 
     const { data, error } = await supabase
@@ -42,56 +67,56 @@ export default function Dashboard() {
 
     if (error) console.error("Error fetching:", error);
     else setProjects(data || []);
-    
+
     setLoading(false);
   }
 
   //Create New Project Function
-  const createProject = async () => {  
-    setLoading(true); 
+  const createProject = async () => {
+    setLoading(true);
 
     //Check if we are logged in
     const { data: { user } } = await supabase.auth.getUser();
 
     //SAFETY CHECK: If no user, kick them out immediately
     if (!user) {
-        console.log("User is null! Redirecting to login...");
-        alert("Session expired. Please log in again.");
-        router.push('/login'); // Send to login
-        setLoading(false);
-        return; // <--- STOP HERE. Do not try to insert.
+      console.log("User is null! Redirecting to login...");
+      alert("Session expired. Please log in again.");
+      router.push('/login'); // Send to login
+      setLoading(false);
+      return; // <--- STOP HERE. Do not try to insert.
     }
 
     //Create Project (Only runs if user exists)
     const { data, error } = await supabase
-        .from('projects')
-        .insert([{ 
-            title: 'Untitled Screenplay', 
-            content: [{ type: 'paragraph', children: [{ text: '' }] }], 
-            user_id: user.id
-        }])
-        .select()
-        .single();
+      .from('projects')
+      .insert([{
+        title: 'Untitled Screenplay',
+        content: [{ type: 'paragraph', children: [{ text: '' }] }],
+        user_id: user.id
+      }])
+      .select()
+      .single();
 
     if (error) {
-        console.error("Database Error:", error);
-        alert("Error: " + error.message);
+      console.error("Database Error:", error);
+      alert("Error: " + error.message);
     } else if (data) {
-        router.push(`/project/${data.id}`);
+      router.push(`/project/${data.id}`);
     }
-    
+
     setLoading(false);
   };
 
   //Delete Project Function
   const deleteProject = async (id: string, e: React.MouseEvent) => {
-    e.preventDefault(); 
+    e.preventDefault();
     e.stopPropagation();
 
     if (!confirm("Are you sure you want to delete this script?")) return;
 
     await supabase.from("projects").delete().eq("id", id);
-    fetchProjects(); 
+    fetchProjects();
   };
 
   //Import Project Function
@@ -113,7 +138,7 @@ export default function Dashboard() {
         .from("projects")
         .insert([
           {
-            title: file.name.replace(".cinehoria", "").replace(".json", ""), 
+            title: file.name.replace(".cinehoria", "").replace(".json", ""),
             content: json,
             user_id: user.id
           },
@@ -130,34 +155,50 @@ export default function Dashboard() {
       console.error(err);
       alert("Failed to import. Is this a valid script file?");
     } finally {
-      if (e.target) e.target.value = ""; 
+      if (e.target) e.target.value = "";
     }
   };
 
   return (
-    <div className="flex h-screen w-full bg-[linear-gradient(rgba(0,0,0,0.3),rgba(0,0,0,0.4)),url('/dash-bg.jpg')] bg-cover bg-center bg-fixed text-white font-sans overflow-hidden">
-      
+    <div className="flex h-screen w-full text-white font-sans overflow-hidden relative">  {/* BACKGROUND IMAGE LAYER */}
+      {/* ANIMATED BACKGROUND IMAGE LAYER */}
+      <div className="absolute inset-0 z-0 bg-black">
+        {BACKGROUND_IMAGES.map((src, index) => (
+          <Image
+            key={src}
+            src={src}
+            alt={`Background ${index}`}
+            fill
+            // Only force instant loading for the very first image
+            priority={index === 0}
+            className={`object-cover transition-opacity duration-1000 ease-in-out ${index === bgIndex ? "opacity-100" : "opacity-0"
+              }`}
+          />
+        ))}
+        {/* Dark Overlay sits on top of the images */}
+        <div className="absolute inset-0 bg-black/40 z-10" />
+      </div>
       {/* Sidebar / Branding */}
       <div className="w-16 h-full flex flex-col items-center justify-center select-none z-20 shrink-0">
         {/* Sidebar content*/}
       </div>
 
-      <div className="flex-1 overflow-y-auto p-8">
+      <div className="flex-1 overflow-y-auto p-8 relative z-10">
         <div className="max-w-4xl mx-auto">
-          
+
           {/* Header */}
           <div className="flex justify-between items-center mb-8 border-b border-gray-800 pb-6">
             <div className="h-13 w-48 mb-2 bg-contain bg-no-repeat bg-left" style={{ backgroundImage: "url('/logo5.png')" }}>
-            <p className="text-[10px] ml-15 mt-4.5 font-black tracking-[0.3em] text-white">CINEHORIA STUDIO</p>
-            </div> 
-             
-            
+              <p className="text-[10px] ml-15 mt-4.5 font-black tracking-[0.3em] text-white">CINEHORIA STUDIO</p>
+            </div>
+
+
             <div className="flex gap-3">
               {/* IMPORT BUTTON */}
               <button
                 onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-2 px-4 py-2 hover:bg-[#eb60c3]/20 text-gray-200 rounded-2xl transition-all"
-              >
+                // Your existing className with glow added:
+                className="flex items-center gap-2 px-4 py-2 rounded-2xl transition-all duration-300 text-gray-200 hover:bg-transparent hover:text-[#eb60c3]/60 hover:[text-shadow:0_0_15px_#eb60c3]">
                 <Upload size={18} />
                 <span>Import</span>
               </button>
@@ -165,7 +206,7 @@ export default function Dashboard() {
               {/* NEW PROJECT BUTTON */}
               <button
                 onClick={createProject}
-                className="hover:bg-[#eb60c3]/20 text-gray-200 px-4 py-2 rounded-2xl font-bold transition-colors shadow-lg flex items-center gap-2"
+                className="flex items-center gap-2 px-4 py-2 rounded-2xl transition-all duration-300 text-gray-200 hover:bg-transparent hover:text-[#eb60c3]/60 hover:[text-shadow:0_0_15px_#eb60c3]"
               >
                 <Plus size={18} />
                 <span>New Project</span>
@@ -196,8 +237,8 @@ export default function Dashboard() {
                   href={`/project/${project.id}`}
                   className="block group relative"
                 >
-                  <div className="bg-black/30 backdrop-blur-md border border-white/10 p-6 rounded-2xl hover:border-[#eb60c3]-500/80 hover:shadow-[0_0_30px_-5px_rgba(235,96,195,0.6)] transition-all duration-300 h-full flex flex-col justify-between group">
-                    
+                  <div className="bg-gray-950/0 backdrop-blur-md border border-white/10 p-6 rounded-4xl hover:border-[#eb60c3]-500/80 hover:shadow-[0_0_30px_-5px_rgba(235,96,195,0.6)] transition-all duration-300 h-full flex flex-col justify-between group">
+
                     {/* Top Row: Icon + Delete */}
                     <div className="flex justify-between items-start mb-4">
                       <div className="p-2 bg-gray-700/50 rounded text-gray-400">

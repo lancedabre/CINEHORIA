@@ -31,6 +31,16 @@
 
 Whether you're outlining your next blockbuster or drafting an indie short, Cinehoria keeps your formatting perfect so you can focus on the story.
 
+<table>
+  <tr>
+    <td>
+      <img src="public/screenshot1.png" alt="First Image" width="100%" />
+    </td>
+    <td>
+      <img src="public/screenshot2.png" alt="Second Image" width="100%" />
+    </td>
+  </tr>
+</table>
 <img src="public/screenshot.png" alt="Cinehoria Logo" width="1000" />
 
 ---

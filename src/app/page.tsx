@@ -25,25 +25,24 @@ export default function Dashboard() {
 
   // 1. Array of images in your public folder
   const BACKGROUND_IMAGES = [
-    '/1.png',
+    '/1.png', 
+    '/2b.png',
     '/2b.png',
     '/3.png',
     '/4.png',
     '/6.png',
-    '/7.png',
+    '/7.png'
   ];
 
-  // 2. State to track which image is currently showing
+  // 2. Track the random index and whether the page has loaded
   const [bgIndex, setBgIndex] = useState(0);
+  const [isMounted, setIsMounted] = useState(false);
 
-  // 3. The 5-minute timer
+  // 3. Pick a random image EXACTLY ONCE when the dashboard opens
   useEffect(() => {
-    const interval = setInterval(() => {
-      setBgIndex((prevIndex) => (prevIndex + 1) % BACKGROUND_IMAGES.length);
-    }, 5 * 60 * 1000); // 5 minutes in milliseconds (300,000)
-
-    // Cleanup the timer if the user leaves the page
-    return () => clearInterval(interval);
+    const randomIndex = Math.floor(Math.random() * BACKGROUND_IMAGES.length);
+    setBgIndex(randomIndex);
+    setIsMounted(true);
   }, []);
 
   //Fetch Projects on Load
@@ -161,21 +160,18 @@ export default function Dashboard() {
 
   return (
     <div className="flex h-screen w-full text-white font-sans overflow-hidden relative">  {/* BACKGROUND IMAGE LAYER */}
-      {/* ANIMATED BACKGROUND IMAGE LAYER */}
+      {/* RANDOM BACKGROUND IMAGE LAYER */}
       <div className="absolute inset-0 z-0 bg-black">
-        {BACKGROUND_IMAGES.map((src, index) => (
+        {isMounted && (
           <Image
-            key={src}
-            src={src}
-            alt={`Background ${index}`}
+            src={BACKGROUND_IMAGES[bgIndex]}
+            alt="Dashboard Background"
             fill
-            // Only force instant loading for the very first image
-            priority={index === 0}
-            className={`object-cover transition-opacity duration-1000 ease-in-out ${index === bgIndex ? "opacity-100" : "opacity-0"
-              }`}
+            priority
+            className="object-cover animate-in fade-in duration-1000"
           />
-        ))}
-        {/* Dark Overlay sits on top of the images */}
+        )}
+        {/* Dark Overlay sits on top of the image */}
         <div className="absolute inset-0 bg-black/40 z-10" />
       </div>
       {/* Sidebar / Branding */}

@@ -75,10 +75,10 @@ export default function LoginPage() {
         {/* 1. THE WELCOME / LANDING CARD VIEW          */}
         {/* ========================================= */}
         {view === 'welcome' && (
-          <div className="w-full max-w-[360px] bg-white rounded-4xl py-8 flex flex-col items-center justify-center relative z-10 animate-in fade-in zoom-in-95 duration-500 text-black">
+          <div className="w-full max-w-[350px] bg-white rounded-4xl py-8 flex flex-col items-center justify-center relative z-10 animate-in fade-in zoom-in-95 duration-500 text-black">
             <div className="px-8 flex flex-col items-center w-full">
             {/* Dark Logo for the white card */}
-            <div className="h-10 w-36 bg-contain bg-center bg-no-repeat mb-6" style={{ backgroundImage: "url('/logo5.png')" }} />
+            <div className="h-10 w-36 bg-contain bg-center bg-no-repeat mb-6" style={{ backgroundImage: "url('/logo6.png')" }} />
 
             <h1 className="text-2xl text-center">Join Cinehoria</h1>
             <p className="text-gray-500 text-sm text-center mb-8 px-2 leading-relaxed tracking-wide">

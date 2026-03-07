@@ -47,7 +47,7 @@ export default function LoginPage() {
 
   // Determine which background image to show based on the active view
   const backgroundImage = view === 'welcome' 
-    ? "url('/blur-bg.png')" // Change this to whatever you want the landing background to be
+    ? "url('/blur-bg.PNG')" // Change this to whatever you want the landing background to be
     : "url('/menu-bg.jpg')" // The background for the glass form
 
   return (

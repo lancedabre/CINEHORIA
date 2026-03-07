@@ -280,56 +280,73 @@ export default function ScreenplayEditor({
           {/* POPUP MENU */}
           {isMenuOpen && (
             <>
-              {/* Invisible Backdrop to close menu when clicking outside */}
+              {/* 1. RESTORED BLURRED BACKDROP */}
+              {/* This div covers the whole screen, blurs it, and closes the menu when clicked */}
               <div
-                className="fixed inset-0 z-99"
+                className="fixed inset-0 z-[90] bg-black/40 backdrop-blur-sm transition-all duration-300"
                 onClick={() => setIsMenuOpen(false)}
               />
-              <div className="fixed left-26 top-20 w-48 bg-black border border-gray-700 rounded-4xl shadow-2xl z-100 overflow-hidden text-xs animate-in fade-in zoom-in-95 duration-100">
-                <button
-                  onClick={() => {
-                    saveToCloud(value);
-                    setIsMenuOpen(false);
-                  }}
-                  className="w-full text-left px-6 py-3 pt-4 text-gray-200 hover:bg-gray-700 hover:text-white flex items-center gap-2 transition-colors"
-                >
-                  <Save size={14} /> <span>Save (Cloud)</span>
-                </button>
-                <button
-                  onClick={() => router.push("/")}
-                  className="w-full text-left px-6 py-3 text-gray-200 hover:bg-gray-700 hover:text-white flex items-center gap-2 transition-colors"
-                >
-                  <FolderOpen size={14} /> <span>Open Project...</span>
-                </button>
-                <button
-                  onClick={() => {
-                    fileInputRef.current?.click();
-                    setIsMenuOpen(false);
-                  }}
-                  className="w-full text-left px-6 py-3 text-gray-200 hover:bg-gray-700 hover:text-white flex items-center gap-2 transition-colors"
-                >
-                  <FileJson size={14} />
-                  <span>Import</span>
-                </button>
-                <div className="border-t border-gray-700 my-1"></div>
-                <button
-                  onClick={() => {
-                    exportToPdf(value);
-                    setIsMenuOpen(false);
-                  }}
-                  className="w-full text-left px-6 py-2 text-gray-200 hover:bg-gray-700 hover:text-white flex items-center gap-2 transition-colors"
-                >
-                  <FileText size={14} /> <span>Export PDF</span>
-                </button>
-                <button
-                  onClick={() => {
-                    saveToDisk(value, projectTitle);
-                    setIsMenuOpen(false);
-                  }}
-                  className="w-full text-left px-6 py-2 pb-4 text-gray-200 hover:bg-gray-700 hover:text-white flex items-center gap-2 transition-colors"
-                >
-                  <FileJson size={14} /> <span>Export</span>
-                </button>
+              
+              {/* 2. CENTERED, LARGER MENU CARD */}
+              {/* Changed position to top-1/2 left-1/2 with -translate, and increased width to w-80 */}
+              <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 rounded-4xl z-[100] overflow-hidden animate-in fade-in zoom-in-95 duration-200 bg-[url('/save-bg.jpg')] bg-cover bg-center">
+                
+                {/* Dark Glass Overlay (Made slightly darker so larger white text pops out more) */}
+                <div className="absolute inset-0 bg-black/60 pointer-events-none"></div>
+
+                {/* Buttons Container */}
+                <div className="relative z-10 flex flex-col py-4">
+                  <button
+                    onClick={() => {
+                      saveToCloud(value);
+                      setIsMenuOpen(false);
+                    }}
+                    className="w-fit bg-white ml-6 mx-auto rounded-4xl mt-20 mb-3 text-left px-4 py-2 text-black hover:bg-black/20 flex items-center gap-4 transition-colors"
+                  >
+                  <span className="font-medium text-base text-sm tracking-wide">Save</span>
+                  </button>
+                  
+                  <button
+                    onClick={() => router.push("/")}
+                    className="w-fit bg-white ml-6 mx-auto rounded-4xl mb-3 text-left px-4 py-2 text-black hover:bg-black/20 flex items-center gap-4 transition-colors"
+                  >
+                  <span className="font-medium text-base text-sm tracking-wide">Open</span>
+                  </button>
+                  
+                  <button
+                    onClick={() => {
+                      fileInputRef.current?.click();
+                      setIsMenuOpen(false);
+                    }}
+                    className="w-fit bg-white ml-6 mx-auto rounded-4xl  text-left px-4 py-2 text-black hover:bg-black/20 flex items-center gap-4 transition-colors"
+                  >
+                    <span className="font-medium text-base text-sm tracking-wide">Import</span>
+                  </button>
+                  
+                  {/* Divider */}
+                  <div className="border-t border-white/20 my-2 mx-6"></div>
+                  <button
+                    onClick={() => {
+                      saveToDisk(value, projectTitle);
+                      setIsMenuOpen(false);
+                    }}
+                    className="w-fit bg-white ml-6 mx-auto rounded-4xl mb-3 text-left px-4 py-2 text-black hover:bg-black/20 flex items-center gap-4 transition-colors"
+                  >
+                  <span className="font-medium text-base text-sm tracking-wide">Export .cinehoria</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      exportToPdf(value);
+                      setIsMenuOpen(false);
+                    }}
+                    className="w-fit bg-white ml-6 mx-auto rounded-4xl mb-3 text-left px-4 py-2 text-black hover:bg-black/20 flex items-center gap-4 transition-colors"
+                  >
+                  <span className="font-medium text-base text-sm tracking-wide">Export PDF</span>
+                  </button>
+                  
+                  
+                </div>
               </div>
             </>
           )}

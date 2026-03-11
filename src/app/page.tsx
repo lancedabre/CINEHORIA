@@ -3,9 +3,9 @@ import { useEffect, useState, useRef } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Upload, Plus, Trash2, FileText } from "lucide-react";
+// Added LogOut to your lucide-react imports
+import { Upload, Plus, Trash2, FileText, LogOut } from "lucide-react"; 
 import Image from "next/image";
-
 
 type Project = {
   id: string;
@@ -18,9 +18,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-
   const supabase = createClient();
-
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 1. Array of images in your public folder
@@ -74,19 +72,16 @@ export default function Dashboard() {
   const createProject = async () => {
     setLoading(true);
 
-    //Check if we are logged in
     const { data: { user } } = await supabase.auth.getUser();
 
-    //SAFETY CHECK: If no user, kick them out immediately
     if (!user) {
       console.log("User is null! Redirecting to login...");
       alert("Session expired. Please log in again.");
-      router.push('/login'); // Send to login
+      router.push('/login'); 
       setLoading(false);
-      return; // <--- STOP HERE. Do not try to insert.
+      return; 
     }
 
-    //Create Project (Only runs if user exists)
     const { data, error } = await supabase
       .from('projects')
       .insert([{
@@ -129,7 +124,6 @@ export default function Dashboard() {
       const text = await file.text();
       const json = JSON.parse(text);
 
-      //Get User ID before importing
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
@@ -158,8 +152,29 @@ export default function Dashboard() {
     }
   };
 
+  // --- NEW LOGOUT FUNCTION ---
+  const handleLogout = async () => {
+    // 1. Ask for confirmation
+    const isConfirmed = window.confirm("You sure you wanna logout?");
+    
+    // 2. If they click Cancel, stop here
+    if (!isConfirmed) return;
+
+    // 3. Otherwise, proceed with logout
+    setLoading(true);
+    const { error } = await supabase.auth.signOut();
+    
+    if (error) {
+      console.error("Logout Error:", error);
+      alert("Failed to log out.");
+      setLoading(false);
+    } else {
+      router.push('/login');
+    }
+  };
+
   return (
-    <div className="flex h-screen w-full text-white font-sans overflow-hidden relative">  {/* BACKGROUND IMAGE LAYER */}
+    <div className="flex h-screen w-full text-white font-sans overflow-hidden relative"> 
       {/* RANDOM BACKGROUND IMAGE LAYER */}
       <div className="absolute inset-0 z-0 bg-black">
         {isMounted && (
@@ -171,9 +186,9 @@ export default function Dashboard() {
             className="object-cover animate-in fade-in duration-1000"
           />
         )}
-        {/* Dark Overlay sits on top of the image */}
         <div className="absolute inset-0 bg-black/40 z-10" />
       </div>
+      
       {/* Sidebar / Branding */}
       <div className="w-16 h-full flex flex-col items-center justify-center select-none z-20 shrink-0">
         {/* Sidebar content*/}
@@ -188,13 +203,11 @@ export default function Dashboard() {
               <p className="text-[10px] ml-15 mt-4.5 font-black tracking-[0.3em] text-white">CINEHORIA STUDIO</p>
             </div>
 
-
             <div className="flex gap-3">
               {/* IMPORT BUTTON */}
               <button
                 onClick={() => fileInputRef.current?.click()}
-                // Your existing className with glow added:
-                className="flex items-center gap-2 px-4 py-2 rounded-2xl transition-all duration-300 text-gray-200 hover:bg-transparent hover:text-[#eb60c3]/60 hover:[text-shadow:0_0_15px_#eb60c3]">
+                className="flex items-center gap-2 px-4 py-2 rounded-2xl transition-all duration-300 text-gray-200 hover:bg-transparent hover:text-black hover:[text-shadow:black]">
                 <Upload size={18} />
                 <span>Import</span>
               </button>
@@ -202,10 +215,18 @@ export default function Dashboard() {
               {/* NEW PROJECT BUTTON */}
               <button
                 onClick={createProject}
-                className="flex items-center gap-2 px-4 py-2 rounded-2xl transition-all duration-300 text-gray-200 hover:bg-transparent hover:text-[#eb60c3]/60 hover:[text-shadow:0_0_15px_#eb60c3]"
+                className="flex items-center gap-2 px-4 py-2 rounded-2xl transition-all duration-300 text-gray-200 hover:bg-transparent hover:text-black hover:[text-shadow:black)]"
               >
                 <Plus size={18} />
                 <span>New Project</span>
+              </button>
+
+              {/* LOGOUT BUTTON */}
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 px-4 py-2 rounded-2xl transition-all duration-300 text-gray-200 hover:bg-transparent hover:text-red-400 hover:[text-shadow:0_0_15px_rgba(248,113,113,0.8)]"
+              >
+                <LogOut size={18} />
               </button>
             </div>
           </div>
@@ -233,7 +254,7 @@ export default function Dashboard() {
                   href={`/project/${project.id}`}
                   className="block group relative"
                 >
-                  <div className="bg-gray-950/0 backdrop-blur-md border border-white/10 p-6 rounded-4xl hover:border-[#eb60c3]-500/80 hover:shadow-[0_0_30px_-5px_rgba(235,96,195,0.6)] transition-all duration-300 h-full flex flex-col justify-between group">
+                  <div className="bg-gray-950/0 backdrop-blur-md border border-white/10 p-6 rounded-4xl hover:border-white/30 hover:shadow-white transition-all duration-300 h-full flex flex-col justify-between group">
 
                     {/* Top Row: Icon + Delete */}
                     <div className="flex justify-between items-start mb-4">

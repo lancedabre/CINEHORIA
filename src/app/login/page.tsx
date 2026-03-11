@@ -176,7 +176,7 @@ export default function LoginPage() {
             </div>
 
             <p className="absolute bottom-10 left-10 text-left text-xs text-white/50">
-              Use 'test@cinehoria.com' & '123' to test <br></br>it out. Email 'cinehoria@gmail.com' for free access. <br></br>Do not use as your primary screenplay editor.
+              Sign Up and then Log In without email conformation. <br></br>Do not use as your primary screenplay editor.
             </p>
           </div>
         )}

@@ -29,6 +29,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <head>
+        {/* Flaticon Uicons - Bold Rounded (for the fi-br prefix) */}
+        <link 
+          rel='stylesheet' 
+          href='https://cdn-uicons.flaticon.com/2.1.0/uicons-bold-rounded/css/uicons-bold-rounded.css' 
+        />
+      </head>
       <body
       suppressHydrationWarning={true}  
         className={`${geistSans.variable} ${geistMono.variable} ${courier.variable} antialiased`}

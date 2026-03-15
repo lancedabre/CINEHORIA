@@ -30,6 +30,10 @@ import {
   Bold,
   Italic,
   Underline,
+  Bookmark,   // Added
+  Plus,       // Added
+  FileInput,  // Added
+  FileOutput, // Added
 } from "lucide-react";
 import Link from "next/link";
 
@@ -55,7 +59,7 @@ export default function ScreenplayEditor({
   const [editorKey, setEditorKey] = useState("initial-load");
   const [projectTitle, setProjectTitle] = useState("Untitled");
 
-  
+
 
   const isMarkActive = (editor: Editor, format: string) => {
     const marks = Editor.marks(editor);
@@ -77,9 +81,9 @@ export default function ScreenplayEditor({
   };
 
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const newTitle = e.target.value;
-      setProjectTitle(newTitle); // Update Local (Screen)
-      updateTitle(newTitle);     // Update Database (Cloud)
+    const newTitle = e.target.value;
+    setProjectTitle(newTitle); // Update Local (Screen)
+    updateTitle(newTitle);     // Update Database (Cloud)
   };
 
 
@@ -280,77 +284,91 @@ export default function ScreenplayEditor({
           {/* POPUP MENU */}
           {isMenuOpen && (
             <>
-              {/* 1. RESTORED BLURRED BACKDROP */}
-              {/* This div covers the whole screen, blurs it, and closes the menu when clicked */}
+              {/* BLURRED BACKDROP */}
               <div
                 className="fixed inset-0 z-[90] bg-black/40 backdrop-blur-sm transition-all duration-300"
                 onClick={() => setIsMenuOpen(false)}
               />
-              
-              {/* 2. CENTERED, LARGER MENU CARD */}
-              {/* Changed position to top-1/2 left-1/2 with -translate, and increased width to w-80 */}
-              <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-150 rounded-4xl z-[100] overflow-hidden animate-in fade-in zoom-in-95 duration-200 bg-[url('/save-bg.jpg')] bg-cover bg-center">
-                
-                {/* Dark Glass Overlay (Made slightly darker so larger white text pops out more) */}
-                <div className="absolute inset-0 bg-black/60 pointer-events-none"></div>
 
-                {/* Buttons Container */}
-                <div className="relative z-10 flex flex-col py-4">
+              {/* IMAGE MENU CARD */}
+              <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[450px] rounded-[2rem] z-[100] shadow-[0_20px_70px_rgba(0,0,0,0.5)] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                
+                {/* Background Image (Make sure to add your image to the /public folder!) */}
+                <div 
+                  className="absolute inset-0 bg-cover bg-center"
+                  style={{ backgroundImage: "url('/save-bg.jpg')" }} // Change this to your actual image file name
+                />
+
+                {/* Optional: Subtle dark gradient at the bottom so the menu pill pops against light grass */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent pointer-events-none" />
+
+                {/* SLEEK HORIZONTAL PILL MENU (Positioned at bottom center) */}
+                <div className="absolute bottom-10 left-1/2 -translate-x-1/2 bg-black px-8 py-3.5 rounded-full flex items-center gap-8 shadow-[0_10px_40px_rgba(0,0,0,0.8)] border border-white/5">
+                  
+                  {/* Save */}
                   <button
                     onClick={() => {
                       saveToCloud(value);
                       setIsMenuOpen(false);
                     }}
-                    className="w-fit bg-white ml-6 mx-auto rounded-4xl mt-20 mb-3 text-left px-4 py-2 text-black hover:bg-black/20 flex items-center gap-4 transition-colors"
+                    className="text-white hover:text-gray-400 hover:scale-110 transition-all duration-200"
+                    title="Save to Cloud"
                   >
-                  <span className="font-medium text-base text-sm tracking-wide">Save</span>
+                    <Bookmark size={20} strokeWidth={2.5} />
                   </button>
-                  
+
+                  {/* Open */}
                   <button
                     onClick={() => router.push("/")}
-                    className="w-fit bg-white ml-6 mx-auto rounded-4xl mb-3 text-left px-4 py-2 text-black hover:bg-black/20 flex items-center gap-4 transition-colors"
+                    className="text-white hover:text-gray-400 hover:scale-110 transition-all duration-200"
+                    title="Open Project"
                   >
-                  <span className="font-medium text-base text-sm tracking-wide">Open</span>
+                    <Plus size={22} strokeWidth={2.5} />
                   </button>
-                  
+
+                  {/* Import */}
                   <button
                     onClick={() => {
                       fileInputRef.current?.click();
                       setIsMenuOpen(false);
                     }}
-                    className="w-fit bg-white ml-6 mx-auto rounded-4xl  text-left px-4 py-2 text-black hover:bg-black/20 flex items-center gap-4 transition-colors"
+                    className="text-white hover:text-gray-400 hover:scale-110 transition-all duration-200"
+                    title="Import Script"
                   >
-                    <span className="font-medium text-base text-sm tracking-wide">Import</span>
+                    <FileInput size={20} strokeWidth={2.5} />
                   </button>
-                  
-                  {/* Divider */}
-                  <div className="border-t border-white/20 my-2 mx-6"></div>
+
+                  {/* Export .cinehoria */}
                   <button
                     onClick={() => {
                       saveToDisk(value, projectTitle);
                       setIsMenuOpen(false);
                     }}
-                    className="w-fit bg-white ml-6 mx-auto rounded-4xl mb-3 text-left px-4 py-2 text-black hover:bg-black/20 flex items-center gap-4 transition-colors"
+                    className="text-white hover:text-gray-400 hover:scale-110 transition-all duration-200"
+                    title="Export .cinehoria"
                   >
-                  <span className="font-medium text-base text-sm tracking-wide">Export .cinehoria</span>
+                    <FileOutput size={20} strokeWidth={2.5} />
                   </button>
 
+                  {/* Export PDF */}
                   <button
                     onClick={() => {
                       exportToPdf(value);
                       setIsMenuOpen(false);
                     }}
-                    className="w-fit bg-white ml-6 mx-auto rounded-4xl mb-3 text-left px-4 py-2 text-black hover:bg-black/20 flex items-center gap-4 transition-colors"
+                    className="text-white hover:text-gray-400 hover:scale-110 transition-all duration-200 relative"
+                    title="Export PDF"
                   >
-                  <span className="font-medium text-base text-sm tracking-wide">Export PDF</span>
+                    <FileText size={20} strokeWidth={2.5} />
+                    <span className="absolute -bottom-2 -right-2 text-[8px] font-bold bg-white text-black px-1 rounded-sm">
+                      
+                    </span>
                   </button>
-                  
-                  
                 </div>
               </div>
             </>
           )}
-        </div>
+          </div>
 
         <div className="w-10 h-px bg-gray-700"></div>
 
@@ -549,10 +567,9 @@ const FormatIconButton = ({ icon, isActive, onToggle }: IconBtnProps) => (
     }}
     className={`
       p-2 w-full flex justify-center rounded transition-colors
-      ${
-        isActive
-          ? "bg-white text-black shadow-sm"
-          : "text-gray-400 hover:text-white hover:bg-gray-700"
+      ${isActive
+        ? "bg-white text-black shadow-sm"
+        : "text-gray-400 hover:text-white hover:bg-gray-700"
       }
     `}
   >

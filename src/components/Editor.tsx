@@ -319,7 +319,7 @@ export default function ScreenplayEditor({
 
                   {/* Open */}
                   <button
-                    onClick={() => router.push("/")}
+                    onClick={() => router.push("/dashboard")}
                     className="text-white hover:text-gray-400 hover:scale-110 transition-all duration-200"
                     title="Open Project"
                   >
@@ -481,7 +481,7 @@ export default function ScreenplayEditor({
                     e.preventDefault();
                     toggleBlock("character");
                   }
-                  if ((e.ctrlKey || e.metaKey) && e.key === "3") {
+                  if ((e.ctrlKey || e.metaKey) && e.key === "4") {
                     e.preventDefault();
                     toggleBlock("dialogue");
                   }

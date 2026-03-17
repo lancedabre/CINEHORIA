@@ -56,14 +56,20 @@ export async function middleware(request: NextRequest) {
 
   const { data: { user } } = await supabase.auth.getUser()
 
-  // 1. If user is NOT logged in and trying to access the app...
-  if (!user && request.nextUrl.pathname !== '/login') {
+  const path = request.nextUrl.pathname;
+
+  // Define which routes anyone can see without logging in
+  const isPublicRoute = path === '/' || path.startsWith('/login');
+
+  // 1. If user is NOT logged in and trying to access a private app route (like /dashboard)...
+  if (!user && !isPublicRoute) {
      return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  // 2. If user IS logged in but tries to go to login page...
-  if (user && request.nextUrl.pathname === '/login') {
-     return NextResponse.redirect(new URL('/', request.url))
+  // 2. If user IS logged in but tries to go to the login page or the public landing page...
+  // Route them directly to their scripts.
+  if (user && isPublicRoute) {
+     return NextResponse.redirect(new URL('/dashboard', request.url))
   }
 
   return response

@@ -16,7 +16,7 @@ export default function LandingPage() {
             <a href="#about" className="hover:text-white transition-colors">About</a>
             <a href="#contribute" className="hover:text-white transition-colors">Contribute</a>
             <a href="#social" className="hover:text-white transition-colors">Social</a>
-            <a href="#manual" className="hover:text-white transition-colors">Manual</a>
+            <Link href="/manual" className="hover:text-white transition-colors">Manual</Link>
           </div>
         </div>
         <Link

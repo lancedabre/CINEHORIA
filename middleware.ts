@@ -62,6 +62,7 @@ export async function middleware(request: NextRequest) {
   const isPublicRoute = 
   path === '/' || 
   path.startsWith('/login') ||
+  path == '/manual' ||
   path === '/sitemap.xml' || 
   path === '/robots.txt';
 

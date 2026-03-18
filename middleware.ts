@@ -59,7 +59,11 @@ export async function middleware(request: NextRequest) {
   const path = request.nextUrl.pathname;
 
   // Define which routes anyone can see without logging in
-  const isPublicRoute = path === '/' || path.startsWith('/login');
+  const isPublicRoute = 
+  path === '/' || 
+  path.startsWith('/login') ||
+  path === '/sitemap.xml' || 
+  path === '/robots.txt';
 
   // 1. If user is NOT logged in and trying to access a private app route (like /dashboard)...
   if (!user && !isPublicRoute) {

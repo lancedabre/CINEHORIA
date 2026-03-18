@@ -148,6 +148,7 @@ export default function LandingPage() {
         </section>
 
       </main>
+      <p className='text-sm md:text-sm text-black'>Cinehoria is created by and for the personal use of Lance Dabre</p>
     </div>
   );
 }

@@ -41,17 +41,3 @@ yarn-error.log*
 next-env.d.ts
 
 # images
-/public/1.png
-/public/2b.png
-/public/3.png
-/public/4.png
-/public/6.png
-/public/7.png
-/public/blur-bg.PNG
-/public/dash-bg.jpg
-/public/logo5.png
-/public/logo6.png
-/public/menu-bg.jpg
-/public/menu-bg.webp
-/public/save-bg.jpg
-/public/test.png

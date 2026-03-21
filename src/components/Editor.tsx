@@ -429,7 +429,7 @@ export default function ScreenplayEditor({
         <div className="absolute top-6 right-10 flex flex-col items-end z-40">
           {/*Logo*/}
           <Link
-            href="/"
+            href="/dashboard"
             className="flex items-center gap-2 mb-1 opacity-50 hover:opacity-100 transition-opacity select-none cursor-pointer"
           >
             <span className="text-[10px] font-bold tracking-[0.3em] text-[#ff99cc]">

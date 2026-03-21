@@ -74,7 +74,7 @@ export async function middleware(request: NextRequest) {
   // 2. If user IS logged in but tries to go to the login page or the public landing page...
   // Route them directly to their scripts.
   if (user && isPublicRoute) {
-     return NextResponse.redirect(new URL('/dashboard', request.url))
+     return NextResponse.redirect(new URL('/', request.url))
   }
 
   return response

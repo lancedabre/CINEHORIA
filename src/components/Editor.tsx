@@ -144,7 +144,7 @@ export default function ScreenplayEditor({
 
     // Scenario 1: First Real Load -> Load & Force Refresh
     if (!hasLoaded && isIncomingDataValid) {
-      console.log("✅ Loaded Script from Cloud");
+      console.log("Loaded Script from Cloud");
       setValue(content);
       setHasLoaded(true);
       setEditorKey(Date.now().toString());
@@ -152,7 +152,7 @@ export default function ScreenplayEditor({
 
     // Scenario 2: Late Data Arrival -> Load & Force Refresh (Only if safe)
     else if (hasLoaded && isEditorEmpty && isIncomingDataValid) {
-      console.log("🔄 Late Data Arrival - Updating Empty Editor");
+      console.log("Late Data Arrival - Updating Empty Editor");
       setValue(content);
       setEditorKey(Date.now().toString());
     }
@@ -292,9 +292,9 @@ export default function ScreenplayEditor({
 
               {/* IMAGE MENU CARD */}
               <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[450px] rounded-[2rem] z-[100] shadow-[0_20px_70px_rgba(0,0,0,0.5)] overflow-hidden animate-in fade-in zoom-in-95 duration-200">
-                
+
                 {/* Background Image (Make sure to add your image to the /public folder!) */}
-                <div 
+                <div
                   className="absolute inset-0 bg-cover bg-center"
                   style={{ backgroundImage: "url('/save-bg.jpg')" }} // Change this to your actual image file name
                 />
@@ -304,7 +304,7 @@ export default function ScreenplayEditor({
 
                 {/* SLEEK HORIZONTAL PILL MENU (Positioned at bottom center) */}
                 <div className="absolute bottom-10 left-1/2 -translate-x-1/2 bg-black px-8 py-3.5 rounded-full flex items-center gap-8 shadow-[0_10px_40px_rgba(0,0,0,0.8)] border border-white/5">
-                  
+
                   {/* Save */}
                   <button
                     onClick={() => {
@@ -361,14 +361,14 @@ export default function ScreenplayEditor({
                   >
                     <FileText size={20} strokeWidth={2.5} />
                     <span className="absolute -bottom-2 -right-2 text-[8px] font-bold bg-white text-black px-1 rounded-sm">
-                      
+
                     </span>
                   </button>
                 </div>
               </div>
             </>
           )}
-          </div>
+        </div>
 
         <div className="w-10 h-px bg-gray-700"></div>
 
@@ -452,13 +452,20 @@ export default function ScreenplayEditor({
 
         {/*CENTERED PAPER*/}
         <div className="flex-1 h-full w-full overflow-y-auto p-8 pb-96 scroll-smooth relative">
-          <div className="screenplay-page mx-auto my-10 font-courier text-[12pt] leading-tight text-black selection:bg-gray-200 shadow-2xl bg-white min-h-[11in] w-[8.5in]">
-            <Slate
-              key={editorKey}
-              editor={editor}
-              initialValue={value}
-              onChange={handleEditorChange}
-            >
+          <div
+            className="screenplay-page mx-auto my-10 font-courier text-[12pt] leading-tight text-black selection:bg-gray-200 shadow-2xl bg-white min-h-[11in] w-[8.5in]"
+            style={{
+              paddingLeft: "1.5in",
+              paddingRight: "0.8in", // <-- This is the magic adjustment
+              paddingTop: "1in",
+              paddingBottom: "1in"
+            }}
+          >            <Slate
+            key={editorKey}
+            editor={editor}
+            initialValue={value}
+            onChange={handleEditorChange}
+          >
               <Editable
                 renderElement={renderElement}
                 renderLeaf={renderLeaf}

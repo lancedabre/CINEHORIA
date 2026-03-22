@@ -21,16 +21,13 @@ export default function Dashboard() {
   const supabase = createClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // 1. Array of images in your public folder
-  const BACKGROUND_IMAGES = [
-    '/1.png', 
-    '/2b.png',
-    '/2b.png',
-    '/3.png',
-    '/4.png',
-    '/6.png',
-    '/7.png'
-  ];
+  const EDITOR_URL = 'https://cinehoria-editor.vercel.app'; // Your actual Vercel URL
+
+const BACKGROUND_IMAGES = [
+  `${EDITOR_URL}/1.png`,
+  `${EDITOR_URL}/2b.png`, 
+  `${EDITOR_URL}/3.png`,
+];
 
   // 2. Track the random index and whether the page has loaded
   const [bgIndex, setBgIndex] = useState(0);

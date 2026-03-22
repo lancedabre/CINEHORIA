@@ -40,18 +40,16 @@ export default function LoginPage() {
     setLoading(false)
   }
 
-  const EDITOR_URL = 'https://cinehoria-editor.vercel.app'; // Your actual Vercel URL
+  const galleryImages = [
+    '/1.png',
+    '/2b.png', 
+    '/3.png',
+  ];
 
-const galleryImages = [
-  `${EDITOR_URL}/1.png`,
-  `${EDITOR_URL}/2b.png`, 
-  `${EDITOR_URL}/3.png`,
-];
-
-// You also need to update the background images further down in the file:
-const backgroundImage = view === 'welcome' 
-  ? `url('${EDITOR_URL}/blur-bg.PNG')` 
-  : `url('${EDITOR_URL}/menu-bg.jpg')`
+  // Determine which background image to show based on the active view
+  const backgroundImage = view === 'welcome' 
+    ? "url('/blur-bg.PNG')" // Change this to whatever you want the landing background to be
+    : "url('/menu-bg.jpg')" // The background for the glass form
 
   return (
     <div 

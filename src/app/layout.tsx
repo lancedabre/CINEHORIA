@@ -25,7 +25,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Cinehoria - Screenwriting Software',
     description: 'A no BS screenwriting software to get you started.',
-    url: 'https://cinehoria.vercel.app',
+    url: 'https://cinehoria-studio.vercel.app',
     siteName: 'Cinehoria',
     locale: 'en_US',
     type: 'website',

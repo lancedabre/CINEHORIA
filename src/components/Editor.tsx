@@ -34,8 +34,12 @@ import {
   Plus,       // Added
   FileInput,  // Added
   FileOutput, // Added
+  Maximize2,
+  Minimize2,
 } from "lucide-react";
 import Link from "next/link";
+
+
 
 interface EditorProps {
   projectId: string;
@@ -97,12 +101,43 @@ export default function ScreenplayEditor({
   }, []);
   const [hasLoaded, setHasLoaded] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
   const editor = useMemo(
     () => withScreenplayLogic(withHistory(withReact(createEditor()))),
     []
   );
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const appContainerRef = useRef<HTMLDivElement>(null);
+
+  const toggleFullscreen = useCallback(async () => {
+    try {
+      if (typeof document === "undefined") return;
+
+      if (document.fullscreenElement) {
+        await document.exitFullscreen();
+        return;
+      }
+
+      const el = appContainerRef.current;
+      if (!el) return;
+
+      if (el.requestFullscreen) {
+        await el.requestFullscreen();
+        return;
+      }
+
+      // Safari fallback
+      const anyEl = el as any;
+      if (typeof anyEl.webkitRequestFullscreen === "function") {
+        anyEl.webkitRequestFullscreen();
+      }
+    } catch (e) {
+      console.error("Failed to toggle fullscreen", e);
+    } finally {
+      setIsMenuOpen(false);
+    }
+  }, []);
 
   const handleLoadLocalFile = async (
     e: React.ChangeEvent<HTMLInputElement>
@@ -165,6 +200,20 @@ export default function ScreenplayEditor({
 
     if (title && !hasLoaded) setProjectTitle(title);
   }, [loading, content, title, hasLoaded, value]);
+
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+
+    const onFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+
+    onFullscreenChange();
+    document.addEventListener("fullscreenchange", onFullscreenChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", onFullscreenChange);
+    };
+  }, []);
   const renderElement = useCallback((props: RenderElementProps) => {
     const { attributes, children, element } = props;
     if (!element) return <p {...attributes}>{children}</p>;
@@ -259,7 +308,10 @@ export default function ScreenplayEditor({
   }
 
   return (
-    <div className="flex h-screen w-full bg-black overflow-hidden font-sans">
+    <div
+      ref={appContainerRef}
+      className="flex h-screen w-full bg-black overflow-hidden font-sans"
+    >
       {/* --- LEFT SIDEBAR/The Taskbar --- */}
       <aside className="w-24 bg-black border-r border-gray-900 flex flex-col items-center py-3 gap-3 z-50 shadow-xl overflow-y-auto custom-scrollbar">
         {/* Cloud Status */}
@@ -420,8 +472,28 @@ export default function ScreenplayEditor({
             icon={<Underline size={16} />}
             isActive={isMarkActive(editor, "underline")}
             onToggle={() => toggleMark(editor, "underline")}
-          />
+          />          
         </div>
+        <div className="w-10 h-px bg-gray-700"></div>
+        {/* Fullscreen */}
+        <button
+            onClick={toggleFullscreen}
+                    className={`
+                      p-2 flex items-center justify-center rounded transition-colors
+                      ${isFullscreen
+                        ? "bg-white text-black shadow-sm"
+                        : "text-gray-400 hover:text-white hover:bg-gray-700"
+                      }
+                    `}
+            title={isFullscreen ? "Exit Fullscreen" : "Enter Fullscreen"}
+          >
+            {isFullscreen ? (
+              <Minimize2 size={20} strokeWidth={2.5} />
+            ) : (
+              <Maximize2 size={20} strokeWidth={2.5} />
+            )}
+          </button>
+
       </aside>
 
       {/*RIGHT CONTENT AREA*/}
